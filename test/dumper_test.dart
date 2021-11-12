@@ -38,7 +38,7 @@ extension Test on Dumper {
   }
 
   Future<int> readFileSize() async {
-    return await File(dataPath).length();
+    return File(dataPath).length();
   }
 }
 

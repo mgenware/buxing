@@ -22,7 +22,7 @@ class Dumper {
   }
 
   Future close() async {
-    _dataFile?.close();
+    return _dataFile?.close();
   }
 
   Future writeData(List<int> data) async {
@@ -41,10 +41,10 @@ class Dumper {
     var d = Dumper._(dest);
 
     var dataFile = await File(d.dataPath).create(recursive: true);
-    dataFile.writeAsBytes(Uint8List(state.size));
+    await dataFile.writeAsBytes(Uint8List(state.size));
 
     var stateFile = await File(d.statePath).create(recursive: true);
-    stateFile.writeAsString(state.toJSON());
+    await stateFile.writeAsString(state.toJSON());
 
     return d;
   }

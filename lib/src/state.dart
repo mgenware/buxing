@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
 
 class State {
   final String url;
