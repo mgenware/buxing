@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:buxing/src/logger.dart';
 import 'package:buxing/src/state.dart';
 
 const dataExt = '.bxdown';
@@ -58,7 +59,7 @@ class Dumper {
   }
 
   static Future<Dumper?> load(String dest, State state,
-      {bool logging = false}) async {
+      {Logger? logger}) async {
     try {
       var d = Dumper._(dest, state);
       if (await d.stateFile.exists() && await d.dataFile.exists()) {
@@ -80,17 +81,14 @@ class Dumper {
       return null;
     } catch (e) {
       // Corrupted state file, returning null.
-      if (logging) {
-        // ignore: avoid_print
-        print('Error loading state "$e"');
-      }
+      logger?.log('Error loading state "$e"');
       return null;
     }
   }
 
   static Future<Dumper> loadOrCreate(String dest, State state,
-      {bool logging = false}) async {
-    return (await load(dest, state, logging: logging)) ??
+      {Logger? logger}) async {
+    return (await load(dest, state, logger: logger)) ??
         await create(dest, state);
   }
 }
