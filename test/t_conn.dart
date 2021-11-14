@@ -7,6 +7,7 @@ class TConn extends ConnectionBase {
   bool streamError = false;
   bool headError = false;
   int size = -1;
+  int segment = -1;
 
   @override
   Future<DataHead> prepare(String url) async {
@@ -19,11 +20,15 @@ class TConn extends ConnectionBase {
   }
 
   Stream<List<int>> _getStream() async* {
-    for (int i = 0; i < 5; i++) {
-      if (streamError && i == 3) {
-        throw Exception('Intentional exception');
+    if (segment != -1) {
+      yield [segment, 0];
+    } else {
+      for (int i = 0; i < 5; i++) {
+        if (streamError && i == 3) {
+          throw Exception('Intentional exception');
+        }
+        yield [i, 0];
       }
-      yield [i, 0];
     }
   }
 

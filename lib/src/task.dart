@@ -1,11 +1,18 @@
 import 'package:buxing/buxing.dart';
 import 'package:buxing/src/logger.dart';
 
+class TaskProgress {
+  final int downloaded;
+  final int total;
+  TaskProgress(this.downloaded, this.total);
+}
+
 class Task {
   final String url;
   final String destFile;
   late final Logger? logger;
-  Function(dynamic)? onError;
+  Function(TaskProgress)? onProgress;
+  dynamic error;
   bool get closed => _closed;
 
   late final ConnectionBase _conn;
@@ -48,6 +55,7 @@ class Task {
 
         // Update state.
         state.downloadedSize += bytes.length;
+        onProgress?.call(TaskProgress(state.downloadedSize, head.size));
         logger
             ?.log('task: Progress: ${state.downloadedSize}/${state.head.size}');
 
@@ -63,15 +71,15 @@ class Task {
           await dumper.writeState(state);
         }
       }
-      await _close();
+      await close();
     } catch (ex) {
       logger?.log('task: FATAL: $ex');
-      await _close();
-      onError?.call(ex);
+      await close();
+      error = ex;
     }
   }
 
-  Future _close() async {
+  Future close() async {
     if (closed) {
       return;
     }

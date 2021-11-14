@@ -22,9 +22,23 @@ extension Test on Task {
 }
 
 void main() {
-  test('Completed successfully, progress', () async {
+  test('Completed successfully with progress', () async {
     var t = newTask(false);
+    List<double> progList = [];
+    t.onProgress = (info) {
+      progList.add(info.downloaded.toDouble() / info.total);
+    };
     await t.start();
     expect(await t.readDestData(), '00000100020003000400');
+    expect(progList, [0.2, 0.4, 0.6, 0.8, 1.0]);
+  });
+
+  test('Pause and resume', () async {
+    Task? t;
+    for (var i = 0; i < 5; i++) {
+      t = newTask(false);
+      await t.start();
+    }
+    expect(await t?.readDestData(), '00000100020003000400');
   });
 }
