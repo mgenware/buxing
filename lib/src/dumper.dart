@@ -43,6 +43,7 @@ class Dumper {
   }
 
   Future complete() async {
+    logger?.log('dumper: Completing');
     await close();
     logger?.log('dumper: Deleting state file');
     await stateFile.delete();

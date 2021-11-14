@@ -7,12 +7,17 @@ import 'package:test/test.dart';
 
 import 'common.dart';
 
-Future<Dumper> newDumper() async {
+const dataExt = '.bxdown';
+const stateExt = '.bxdownstate';
+
+Future<Dumper> newDumper({int size = defSize}) async {
   var file = newFile();
-  var head = DataHead(defURL, defURL, defSize);
+  var head = DataHead(defURL, defURL, size);
   var d = await Dumper.create(file, head);
-  // Set position to start of the file.
-  await d.seek(0);
+  if (size > 0) {
+    // Set position to start of the file.
+    await d.seek(0);
+  }
   return d;
 }
 
@@ -42,10 +47,33 @@ extension Test on Dumper {
 void main() {
   test('Create', () async {
     var d = await newDumper();
-    expect(d.dataFile.path, d.path + '.bxdown');
+    expect(d.dataFile.path, d.path + dataExt);
     expect(await d.readDataString(), '00000000000000000000');
-    expect(d.stateFile.path, d.path + '.bxdownstate');
+    expect(d.stateFile.path, d.path + stateExt);
     expect(await d.readStateString(), d.currentStateJSON());
+    await d.close();
+  });
+
+  test('Create (size 0)', () async {
+    var d = await newDumper(size: 0);
+    expect(d.dataFile.path, d.path + dataExt);
+    expect(await d.readDataString(), '');
+    expect(d.stateFile.path, d.path + stateExt);
+    expect(await d.readStateString(), d.currentStateJSON());
+    await d.close();
+  });
+
+  test('Create and write (size -1)', () async {
+    var d = await newDumper(size: -1);
+    expect(d.dataFile.path, d.path + dataExt);
+    expect(await d.readDataString(), '');
+    expect(d.stateFile.path, d.path + stateExt);
+    expect(await d.readStateString(), d.currentStateJSON());
+    await d.writeString('a');
+    expect(await d.readDataString(), '61');
+
+    await d.writeString('b');
+    expect(await d.readDataString(), '6162');
     await d.close();
   });
 

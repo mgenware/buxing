@@ -43,8 +43,14 @@ class Task {
           'task: Dumper created with state:\n${dumper.currentState.toJSON()}\n');
       // Set dumper position to last downloaded position.
       var state = dumper.currentState;
-      await dumper.seek(state.downloadedSize);
-      logger?.log('task: Dumper position set to: ${state.downloadedSize}');
+      if (head.size != 0) {
+        await dumper.seek(state.downloadedSize);
+        logger?.log('task: Dumper position set to: ${state.downloadedSize}');
+      } else {
+        // Empty remote file, complete the task immediately.
+        await _complete();
+        return;
+      }
 
       logger?.log('task: Starting connection...');
       var dataStream = await _conn.start();
@@ -56,22 +62,27 @@ class Task {
         // Update state.
         state.downloadedSize += bytes.length;
         onProgress?.call(TaskProgress(state.downloadedSize, head.size));
-        logger
-            ?.log('task: Progress: ${state.downloadedSize}/${state.head.size}');
+        logger?.log('task: Progress: ${state.downloadedSize}/${head.size}');
 
-        if (state.downloadedSize > state.head.size) {
+        if (head.size >= 0 && state.downloadedSize > head.size) {
           throw Exception(
-              'task: Remote file overflow (${state.downloadedSize}/${state.head.size}).');
+              'task: Remote file overflow (${state.downloadedSize}/${head.size}).');
         }
-        if (state.downloadedSize == state.head.size) {
+        if (state.downloadedSize == head.size) {
           logger?.log('task: Completing task...');
-          await dumper.complete();
-          _dumper = null;
+          await _complete();
         } else {
           await dumper.writeState(state);
         }
       }
-      await close();
+
+      logger?.log('task: Data transfer done');
+      // Complete the task if remote size is unknown.
+      if (head.size == -1) {
+        await _complete();
+      } else {
+        await close();
+      }
     } catch (ex) {
       logger?.log('task: FATAL: $ex');
       await close();
@@ -86,5 +97,11 @@ class Task {
     _conn.close();
     await _dumper?.close();
     _closed = true;
+  }
+
+  Future _complete() async {
+    logger?.log('task: Completing task...');
+    await _dumper?.complete();
+    _dumper = null;
   }
 }

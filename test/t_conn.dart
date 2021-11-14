@@ -20,6 +20,9 @@ class TConn extends ConnectionBase {
   }
 
   Stream<List<int>> _getStream() async* {
+    if (size == 0) {
+      return;
+    }
     if (segment != -1) {
       yield [segment, 0];
     } else {
