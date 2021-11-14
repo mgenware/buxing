@@ -5,10 +5,8 @@ class Task {
   late final ConnectionBase _conn;
   final String url;
   final String destFile;
-  void Function(dynamic)? onDone;
   late final Logger? logger;
 
-  State? _state;
   Dumper? _dumper;
 
   Task(this.url, this.destFile,
@@ -17,30 +15,45 @@ class Task {
     if (logging) {
       logger = Logger();
       _conn.logger = logger;
+    } else {
+      logger = null;
     }
   }
 
   Future start() async {
-    _conn.onHeaderReceived = (head) async {
-      logger?.log('onHead: ${head.actualURL}|${head.size}');
-      var state = State(head);
-      _state = state;
-      _dumper = await Dumper.loadOrCreate(destFile, state, logger: logger);
-    };
+    logger?.log('task: Preparing connection...');
+    var head = await _conn.prepare(url);
+    logger?.log('task: Remote head: ${head.actualURL}:${head.size}');
+    var dumper = await Dumper.loadOrCreate(destFile, head, logger);
+    _dumper = dumper;
 
-    logger?.log('Starting connection...');
-    var dataStream = await _conn.start(url);
+    logger?.log('task: Starting connection...');
+    var dataStream = await _conn.start();
+
+    var state = dumper.currentState;
     await for (var bytes in dataStream) {
-      logger?.log('bytes received: ${bytes.length}');
-      await _dumper?.writeData(bytes);
+      logger?.log('Bytes received: ${bytes.length}');
+      await dumper.writeData(bytes);
 
       // Update state.
-      _state!.downloadedSize += bytes.length;
-      await _dumper?.writeState(_state!);
+      state.downloadedSize += bytes.length;
+      logger?.log('task: Progress: ${state.downloadedSize}/${state.head.size}');
+
+      if (state.downloadedSize > state.head.size) {
+        throw Exception(
+            'task: Remote file overflow (${state.downloadedSize}/${state.head.size}).');
+      }
+      if (state.downloadedSize == state.head.size) {
+        logger?.log('task: Completing task...');
+        await dumper.complete();
+      } else {
+        await dumper.writeState(state);
+      }
     }
   }
 
-  void close() {
+  Future close() async {
     _conn.close();
+    await _dumper?.close();
   }
 }
