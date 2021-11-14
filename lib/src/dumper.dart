@@ -33,7 +33,6 @@ class Dumper {
 
   Future prepare() async {
     _dataRAF = await dataFile.open(mode: FileMode.append);
-    await seek(currentState.downloadedSize);
   }
 
   Future complete() async {

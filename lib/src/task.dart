@@ -24,15 +24,22 @@ class Task {
     logger?.log('task: Preparing connection...');
     var head = await _conn.prepare(url);
     logger?.log('task: Remote head: ${head.actualURL}:${head.size}');
+
+    // Setup dumper.
     var dumper = await Dumper.loadOrCreate(destFile, head, logger);
     _dumper = dumper;
+    logger?.log(
+        'task: Dumper created with state:\n${dumper.currentState.toJSON()}\n');
+    // Set dumper position to last downloaded position.
+    var state = dumper.currentState;
+    await dumper.seek(state.downloadedSize);
+    logger?.log('task: Dumper position set to: ${state.downloadedSize}');
 
     logger?.log('task: Starting connection...');
     var dataStream = await _conn.start();
 
-    var state = dumper.currentState;
     await for (var bytes in dataStream) {
-      logger?.log('Bytes received: ${bytes.length}');
+      logger?.log('task: Bytes received: ${bytes.length}');
       await dumper.writeData(bytes);
 
       // Update state.
