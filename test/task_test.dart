@@ -25,7 +25,6 @@ void main() {
   test('Completed successfully, progress', () async {
     var t = newTask(false);
     await t.start();
-    await t.close();
-    expect(await t.readDestData(), '00000000000000000000');
+    expect(await t.readDestData(), '00000100020003000400');
   });
 }

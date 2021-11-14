@@ -28,10 +28,17 @@ class Dumper {
 
   State get currentState => _currentState;
 
+  static Future<Dumper> _newDumper(String path, State initialState,
+      File dataFile, File stateFile, Logger? logger) async {
+    var d = Dumper._(path, initialState, dataFile, stateFile, logger);
+    await d._prepare();
+    return d;
+  }
+
   Dumper._(this.path, this._currentState, this.dataFile, this.stateFile,
       this.logger);
 
-  Future prepare() async {
+  Future _prepare() async {
     _dataRAF = await dataFile.open(mode: FileMode.append);
   }
 
@@ -45,12 +52,12 @@ class Dumper {
 
   Future close() async {
     logger?.log('dumper: Closing RAF');
-    await _dataRAF?.close();
+    await _dataRAF!.close();
     _dataRAF = null;
   }
 
   Future writeData(List<int> data) async {
-    await _dataRAF?.writeFrom(data);
+    await _dataRAF!.writeFrom(data);
   }
 
   Future seek(int poz) async {
@@ -80,7 +87,7 @@ class Dumper {
 
     await stateFile.create(recursive: true);
 
-    var d = Dumper._(dest, state, dataFile, stateFile, logger);
+    var d = await Dumper._newDumper(dest, state, dataFile, stateFile, logger);
     await d.writeState(state);
     return d;
   }
@@ -104,7 +111,8 @@ class Dumper {
               'Local data size is greater than remote file size, $fileSize != ${head.size}');
         }
 
-        return Dumper._(dest, localState, dataFile, stateFile, logger);
+        return await Dumper._newDumper(
+            dest, localState, dataFile, stateFile, logger);
       }
       return null;
     } catch (e) {

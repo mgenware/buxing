@@ -11,7 +11,6 @@ Future<Dumper> newDumper() async {
   var file = newFile();
   var head = DataHead(defURL, defURL, defSize);
   var d = await Dumper.create(file, head);
-  await d.prepare();
   // Set position to start of the file.
   await d.seek(0);
   return d;
