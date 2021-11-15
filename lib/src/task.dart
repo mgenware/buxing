@@ -7,16 +7,19 @@ class TaskProgress {
   TaskProgress(this.downloaded, this.total);
 }
 
+enum TaskStatus { unstarted, working, paused, completed, error }
+
 class Task {
   final String url;
   final String destFile;
   late final Logger? logger;
   Function(TaskProgress)? onProgress;
   dynamic error;
-  bool get closed => _closed;
+  TaskStatus get status => _status;
 
   late final WorkerBase _conn;
   Dumper? _dumper;
+  TaskStatus _status = TaskStatus.unstarted;
   bool _closed = false;
 
   Task(this.url, this.destFile,
@@ -32,6 +35,7 @@ class Task {
 
   Future start() async {
     try {
+      _setStatus(TaskStatus.working);
       logger?.log('task: Preparing connection...');
       var head = await _conn.prepare(url);
       logger?.log('task: Remote head: ${head.actualURL}:${head.size}');
@@ -96,11 +100,14 @@ class Task {
       logger?.log('task: FATAL: $ex');
       await close();
       error = ex;
+      _setStatus(TaskStatus.error);
     }
   }
 
+  /// Releases any resources of the current dumper.
   Future close() async {
-    if (closed) {
+    // This check is necessary as [complete] might have called [close].
+    if (_closed) {
       return;
     }
     _conn.close();
@@ -110,14 +117,22 @@ class Task {
 
   Future _complete() async {
     logger?.log('task: Completing task...');
-    await _dumper?.complete();
+    await _dumper!.complete();
     _dumper = null;
+    _setStatus(TaskStatus.completed);
   }
 
   Future _resetData(State state, Dumper dumper) async {
-    logger?.log('task: Reseting task...');
+    logger?.log('task: Resetting task...');
     state.downloadedSize = 0;
     await dumper.writeState(state);
     await dumper.clearData();
+  }
+
+  void _setStatus(TaskStatus status) {
+    if (_status == status) {
+      throw Exception('Invalid status change');
+    }
+    _status = status;
   }
 }

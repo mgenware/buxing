@@ -34,6 +34,7 @@ void main() {
     await t.start();
     expect(await t.readDestData(), '00000100020003000400');
     expect(progList, [0.2, 0.4, 0.6, 0.8, 1.0]);
+    expect(t.status, TaskStatus.completed);
   });
 
   test('Completed successfully (unknown size)', () async {
@@ -45,6 +46,7 @@ void main() {
     await t.start();
     expect(await t.readDestData(), '00000100020003000400');
     expect(progList, [-2.0, -4.0, -6.0, -8.0, -10.0]);
+    expect(t.status, TaskStatus.completed);
   });
 
   test('Completed successfully (empty size)', () async {
@@ -57,5 +59,6 @@ void main() {
     expect(await t.readDestData(), '');
     // ignore: implicit-dynamic, implicit_dynamic_list_literal
     expect(progList, []);
+    expect(t.status, TaskStatus.completed);
   });
 }
