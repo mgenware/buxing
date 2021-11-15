@@ -25,6 +25,7 @@ class Dumper {
   Logger? logger;
   RandomAccessFile? _dataRAF;
   State _currentState;
+  bool _closed = false;
 
   State get currentState => _currentState;
 
@@ -51,10 +52,16 @@ class Dumper {
     await dataFile.rename(path);
   }
 
+  /// Releases any resources of the current dumper.
   Future close() async {
+    // This check is necessary as [complete] might have called [close].
+    if (_closed) {
+      return;
+    }
     logger?.log('dumper: Closing RAF');
     await _dataRAF!.close();
     _dataRAF = null;
+    _closed = true;
   }
 
   Future writeData(List<int> data) async {
