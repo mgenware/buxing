@@ -1,7 +1,7 @@
 library buxing;
 
-export 'src/connection_base.dart';
-export 'src/connection.dart';
+export 'src/worker_base.dart';
+export 'src/workers/resumable_worker.dart';
 export 'src/data.dart';
 export 'src/dumper.dart';
 export 'src/state.dart';

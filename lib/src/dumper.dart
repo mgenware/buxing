@@ -67,12 +67,17 @@ class Dumper {
           'Invalid seek position $poz, maximum allowed ${currentState.head.size - 1}');
     }
     logger?.log('dumper: Seek: $poz');
-    await _dataRAF?.setPosition(poz);
+    await _dataRAF!.setPosition(poz);
   }
 
   Future writeState(State state) async {
     _currentState = state;
     await stateFile.writeAsString(state.toJSON());
+  }
+
+  Future clearData() async {
+    logger?.log('dumper: Clearing data');
+    await _dataRAF!.truncate(0);
   }
 
   static Future<Dumper> create(String dest, DataHead head,

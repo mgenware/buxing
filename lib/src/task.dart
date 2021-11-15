@@ -15,13 +15,13 @@ class Task {
   dynamic error;
   bool get closed => _closed;
 
-  late final ConnectionBase _conn;
+  late final WorkerBase _conn;
   Dumper? _dumper;
   bool _closed = false;
 
   Task(this.url, this.destFile,
-      {ConnectionBase? connection, bool logging = false}) {
-    _conn = connection ?? Connection();
+      {WorkerBase? connection, bool logging = false}) {
+    _conn = connection ?? ResumableWorker();
     if (logging) {
       logger = Logger();
       _conn.logger = logger;
@@ -43,13 +43,22 @@ class Task {
           'task: Dumper created with state:\n${dumper.currentState.toJSON()}\n');
       // Set dumper position to last downloaded position.
       var state = dumper.currentState;
-      if (head.size != 0) {
-        await dumper.seek(state.downloadedSize);
-        logger?.log('task: Dumper position set to: ${state.downloadedSize}');
-      } else {
+      if (head.size == 0) {
         // Empty remote file, complete the task immediately.
         await _complete();
         return;
+      } else if (head.size > 0) {
+        var canResume = await _conn.canResume();
+        logger?.log('task: Can resume? $canResume');
+        if (canResume) {
+          await dumper.seek(state.downloadedSize);
+          logger?.log('task: Dumper position set to: ${state.downloadedSize}');
+        } else {
+          await _resetData(state, dumper);
+        }
+      } else {
+        logger?.log('task: Head.size unknown');
+        await _resetData(state, dumper);
       }
 
       logger?.log('task: Starting connection...');
@@ -103,5 +112,12 @@ class Task {
     logger?.log('task: Completing task...');
     await _dumper?.complete();
     _dumper = null;
+  }
+
+  Future _resetData(State state, Dumper dumper) async {
+    logger?.log('task: Reseting task...');
+    state.downloadedSize = 0;
+    await dumper.writeState(state);
+    await dumper.clearData();
   }
 }

@@ -5,11 +5,14 @@ import 'package:buxing/buxing.dart';
 import 'package:test/test.dart';
 
 import 'common.dart';
-import 't_conn.dart';
+import 't_worker.dart';
 
-Task newTask({int size = defSize, bool hasError = false}) {
-  var conn = TConn();
-  conn.size = size;
+Task newTask([WorkerBase? conn]) {
+  if (conn == null) {
+    var tconn = TWorker();
+    tconn.size = defSize;
+    conn = tconn;
+  }
   var task = Task(defURL, newFile(), connection: conn);
   return task;
 }
@@ -33,17 +36,8 @@ void main() {
     expect(progList, [0.2, 0.4, 0.6, 0.8, 1.0]);
   });
 
-  test('Pause and resume', () async {
-    Task? t;
-    for (var i = 0; i < 5; i++) {
-      t = newTask();
-      await t.start();
-    }
-    expect(await t?.readDestData(), '00000100020003000400');
-  });
-
   test('Completed successfully (unknown size)', () async {
-    var t = newTask(size: -1);
+    var t = newTask(TWorker()..size = -1);
     List<double> progList = [];
     t.onProgress = (info) {
       progList.add(info.downloaded.toDouble() / info.total);
@@ -54,7 +48,7 @@ void main() {
   });
 
   test('Completed successfully (empty size)', () async {
-    var t = newTask(size: 0);
+    var t = newTask(TWorker()..size = 0);
     List<double> progList = [];
     t.onProgress = (info) {
       progList.add(info.downloaded.toDouble() / info.total);
