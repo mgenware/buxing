@@ -45,24 +45,30 @@ class Task {
       _dumper = dumper;
       logger?.log(
           'task: Dumper created with state:\n${dumper.currentState.toJSON()}\n');
-      // Set dumper position to last downloaded position.
       var state = dumper.currentState;
       if (head.size == 0) {
         // Empty remote file, complete the task immediately.
         await _complete();
         return;
-      } else if (head.size > 0) {
-        var canResume = await _conn.canResume();
-        logger?.log('task: Can resume? $canResume');
-        if (canResume) {
-          await dumper.seek(state.downloadedSize);
-          logger?.log('task: Dumper position set to: ${state.downloadedSize}');
-        } else {
-          await _resetData(state, dumper);
-        }
-      } else {
+      }
+      if (head.size < 0) {
         logger?.log('task: Head.size unknown');
+        // Remote size unknown, discard local data, and start from zero.
         await _resetData(state, dumper);
+      }
+
+      var canResume = await _conn.canResume();
+      logger?.log('task: Can resume? $canResume');
+      if (canResume) {
+        // Set dumper position to last downloaded position.
+        await dumper.seek(state.downloadedSize);
+        logger?.log('task: Dumper position set to: ${state.downloadedSize}');
+      } else {
+        // If remove size is unknown, the dumper has been truncated to 0 here.
+        // Otherwise, reset dumper position to 0.
+        if (head.size > 0) {
+          await dumper.seek(0);
+        }
       }
 
       logger?.log('task: Starting connection...');
@@ -82,8 +88,8 @@ class Task {
               'task: Remote file overflow (${state.downloadedSize}/${head.size}).');
         }
         if (state.downloadedSize == head.size) {
-          logger?.log('task: Completing task...');
           await _complete();
+          return;
         } else {
           await dumper.writeState(state);
         }
@@ -97,10 +103,10 @@ class Task {
         await close();
       }
     } catch (ex) {
+      _setStatus(TaskStatus.error);
       logger?.log('task: FATAL: $ex');
       await close();
       error = ex;
-      _setStatus(TaskStatus.error);
     }
   }
 
@@ -116,17 +122,17 @@ class Task {
   }
 
   Future _complete() async {
+    _setStatus(TaskStatus.completed);
     logger?.log('task: Completing task...');
     await _dumper!.complete();
     _dumper = null;
-    _setStatus(TaskStatus.completed);
   }
 
   Future _resetData(State state, Dumper dumper) async {
     logger?.log('task: Resetting task...');
     state.downloadedSize = 0;
     await dumper.writeState(state);
-    await dumper.clearData();
+    await dumper.truncate(0);
   }
 
   void _setStatus(TaskStatus status) {

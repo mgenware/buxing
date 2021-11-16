@@ -145,4 +145,14 @@ void main() {
     expect(await nd.readStateString(),
         '{"url":"_URL_","actual_url":"_URL_","size":7,"downloaded_size":0}');
   });
+
+  test('Truncate', () async {
+    var d = await newDumper();
+    await d.truncate(1);
+    expect(d.dataFile.path, d.path + dataExt);
+    expect(await d.readDataString(), '00');
+    expect(d.stateFile.path, d.path + stateExt);
+    expect(await d.readStateString(), d.currentStateJSON());
+    await d.close();
+  });
 }

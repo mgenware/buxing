@@ -82,9 +82,9 @@ class Dumper {
     await stateFile.writeAsString(state.toJSON());
   }
 
-  Future clearData() async {
-    logger?.log('dumper: Clearing data');
-    await _dataRAF!.truncate(0);
+  Future truncate(int length) async {
+    logger?.log('dumper: Truncate data to $length');
+    await _dataRAF!.truncate(length);
   }
 
   static Future<Dumper> create(String dest, DataHead head,
