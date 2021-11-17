@@ -7,7 +7,7 @@ class DataHead {
 }
 
 class DataBody {
-  final int? index;
+  final int? position;
   final List<int> data;
-  DataBody(this.data, {this.index});
+  DataBody(this.data, {this.position});
 }

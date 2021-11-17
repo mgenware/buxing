@@ -2,14 +2,14 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 
 import 'package:buxing/buxing.dart';
-import 'conn.dart';
+import 'http_client_wrapper.dart';
 
-class ResumableWorker extends WorkerBase {
-  final Conn _conn = Conn();
-  String? _url;
+class Worker extends WorkerBase {
+  final HTTPClientWrapper _conn = HTTPClientWrapper();
+  Uri? _url;
 
   @override
-  Future<DataHead> prepare(String url) async {
+  Future<DataHead> connect(Uri url) async {
     logger?.log('conn: Sending head request...');
     _url = url;
     var headResp = await _conn.head(url);
@@ -18,22 +18,22 @@ class ResumableWorker extends WorkerBase {
     // Fetch content size.
     var contentLength = headResp.headers['content-length'];
     var size = int.tryParse(contentLength ?? '') ?? -1;
-    var dataHead = DataHead(url, url, size);
+    var urlString = url.toString();
+    var dataHead = DataHead(urlString, urlString, size);
     return dataHead;
   }
 
   @override
-  Future<Stream<List<int>>> start() async {
+  Future<Stream<DataBody>> start(Uri url, State state) async {
     logger?.log('conn: Sending data request...');
     var resp = await _conn.get(_mustGetURL());
-    return resp.stream;
+    return resp.stream.map((event) => DataBody(event));
   }
 
   @override
-  Future<bool> canResume() async {
+  Future<bool> canResume() {
     logger?.log('conn: Sending range check request...');
-    var resp = await _conn.head(_mustGetURL(), headers: {'Range': 'bytes=0-'});
-    return resp.statusCode == 206;
+    return _conn.canResume(_mustGetURL());
   }
 
   @override
@@ -47,7 +47,7 @@ class ResumableWorker extends WorkerBase {
     logger?.log('conn: head:headers:\n${resp.headers}');
   }
 
-  String _mustGetURL() {
+  Uri _mustGetURL() {
     var url = _url;
     if (url == null) {
       throw Exception(

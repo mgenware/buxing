@@ -10,7 +10,7 @@ class TaskProgress {
 enum TaskStatus { unstarted, working, paused, completed, error }
 
 class Task {
-  final String url;
+  final Uri url;
   final String destFile;
   late final Logger? logger;
   Function(TaskProgress)? onProgress;
@@ -24,7 +24,7 @@ class Task {
 
   Task(this.url, this.destFile,
       {WorkerBase? connection, bool logging = false}) {
-    _conn = connection ?? ResumableWorker();
+    _conn = connection ?? Worker();
     if (logging) {
       logger = Logger();
       _conn.logger = logger;
@@ -36,8 +36,8 @@ class Task {
   Future start() async {
     try {
       _setStatus(TaskStatus.working);
-      logger?.log('task: Preparing connection...');
-      var head = await _conn.prepare(url);
+      logger?.log('task: Starting connection...');
+      var head = await _conn.connect(url);
       logger?.log('task: Remote head: ${head.actualURL}:${head.size}');
 
       // Setup dumper.
@@ -71,15 +71,23 @@ class Task {
         }
       }
 
-      logger?.log('task: Starting connection...');
-      var dataStream = await _conn.start();
+      logger?.log('task: Preparing...');
+      var stateToBeUpdated = await _conn.prepare(state);
+      if (stateToBeUpdated != null) {
+        state = stateToBeUpdated;
+        await dumper.writeState(state);
+      }
 
-      await for (var bytes in dataStream) {
-        logger?.log('task: Bytes received: ${bytes.length}');
-        await dumper.writeData(bytes);
+      logger?.log('task: Downloading...');
+      var dataStream = await _conn.start(state);
+
+      await for (var body in dataStream) {
+        logger
+            ?.log('task: Body received: ${body.data.length}(${body.position})');
+        await dumper.writeData(body.data);
 
         // Update state.
-        state.downloadedSize += bytes.length;
+        state.downloadedSize += body.data.length;
         onProgress?.call(TaskProgress(state.downloadedSize, head.size));
         logger?.log('task: Progress: ${state.downloadedSize}/${head.size}');
 
