@@ -116,8 +116,8 @@ void main() {
 
     // Load the previous dumper.
     var nd = await Dumper.load(d.path, d.currentState.head);
-    expect(await nd?.readDataString(), '01020304000000000000');
-    expect(await nd?.readStateString(),
+    expect(await nd!.readDataString(), '01020304000000000000');
+    expect(await nd.readStateString(),
         '{"url":"https://www.mgenware.com","actual_url":"https://www.mgenware.com","size":10,"downloaded_size":0,"parallel":false,"conn":[]}');
 
     // Load dumper with a different state.

@@ -22,14 +22,8 @@ class Task {
   TaskStatus _status = TaskStatus.unstarted;
   bool _closed = false;
 
-  Task(this.url, this.destFile, {WorkerBase? worker, bool logging = false}) {
+  Task(this.url, this.destFile, {WorkerBase? worker, this.logger}) {
     _conn = worker ?? Worker();
-    if (logging) {
-      logger = Logger();
-      _conn.logger = logger;
-    } else {
-      logger = null;
-    }
   }
 
   Future start() async {
@@ -81,14 +75,19 @@ class Task {
       var dataStream = await _conn.start(url, state);
 
       await for (var body in dataStream) {
-        logger?.info(
+        logger?.verbose(
             'task: Body received: ${body.data.length}(${body.position})');
+        var poz = body.position;
+        if (poz != null) {
+          logger?.verbose('task: Seek: $poz');
+          await dumper.seek(poz);
+        }
         await dumper.writeData(body.data);
 
         // Update state.
         state.downloadedSize += body.data.length;
         onProgress?.call(TaskProgress(state.downloadedSize, head.size));
-        logger?.info('task: Progress: ${state.downloadedSize}/${head.size}');
+        logger?.verbose('task: Progress: ${state.downloadedSize}/${head.size}');
 
         if (head.size >= 0 && state.downloadedSize > head.size) {
           throw Exception(

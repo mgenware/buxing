@@ -13,7 +13,7 @@ Task newTask([WorkerBase? conn]) {
     tconn.size = defSize;
     conn = tconn;
   }
-  var task = Task(defURL, newFile(), connection: conn);
+  var task = Task(defURL, newFile(), worker: conn);
   return task;
 }
 

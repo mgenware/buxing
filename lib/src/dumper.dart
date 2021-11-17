@@ -73,7 +73,6 @@ class Dumper {
       throw Exception(
           'Invalid seek position $poz, maximum allowed ${currentState.head.size - 1}');
     }
-    logger?.info('dumper: Seek: $poz');
     await _dataRAF!.setPosition(poz);
   }
 

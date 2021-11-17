@@ -57,7 +57,9 @@ class State {
         Uri.parse(map[actualUrlKey] as String), map[sizeKey] as int));
     state.downloadedSize = map[downloadedSizeKey] as int;
     state.parallel = map[parallelKey] as bool;
-    state.conns = List<ConnState>.from(map[connKey] as List<dynamic>);
+    for (var dict in map[connKey] as List<dynamic>) {
+      state.conns.add(ConnState.fromJson(dict as Map<String, dynamic>));
+    }
     return state;
   }
 }
