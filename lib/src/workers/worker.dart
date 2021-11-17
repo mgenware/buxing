@@ -10,7 +10,7 @@ class Worker extends WorkerBase {
 
   @override
   Future<DataHead> connect(Uri url) async {
-    logger?.log('conn: Sending head request...');
+    logger?.info('conn: Sending head request...');
     _url = url;
     var headResp = await _conn.head(url);
     _logResponse(headResp);
@@ -18,21 +18,20 @@ class Worker extends WorkerBase {
     // Fetch content size.
     var contentLength = headResp.headers['content-length'];
     var size = int.tryParse(contentLength ?? '') ?? -1;
-    var urlString = url.toString();
-    var dataHead = DataHead(urlString, urlString, size);
+    var dataHead = DataHead(url, url, size);
     return dataHead;
   }
 
   @override
   Future<Stream<DataBody>> start(Uri url, State state) async {
-    logger?.log('conn: Sending data request...');
+    logger?.info('conn: Sending data request...');
     var resp = await _conn.get(_mustGetURL());
     return resp.stream.map((event) => DataBody(event));
   }
 
   @override
   Future<bool> canResume() {
-    logger?.log('conn: Sending range check request...');
+    logger?.info('conn: Sending range check request...');
     return _conn.canResume(_mustGetURL());
   }
 
@@ -42,9 +41,9 @@ class Worker extends WorkerBase {
   }
 
   void _logResponse(http.Response resp) {
-    logger?.log('conn: head:status:\n${resp.statusCode}');
-    logger?.log('conn: head:body:\n${resp.body}');
-    logger?.log('conn: head:headers:\n${resp.headers}');
+    logger?.info('conn: head:status:\n${resp.statusCode}');
+    logger?.info('conn: head:body:\n${resp.body}');
+    logger?.info('conn: head:headers:\n${resp.headers}');
   }
 
   Uri _mustGetURL() {

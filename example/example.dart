@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-
 import 'package:buxing/buxing.dart';
 
 void main() async {

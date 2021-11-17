@@ -4,7 +4,7 @@ import 'package:path/path.dart' as p;
 
 var uuid = Uuid();
 
-const defURL = '_URL_';
+var defURL = Uri.parse('https://www.mgenware.com');
 const defSize = 10;
 
 String newFile() {

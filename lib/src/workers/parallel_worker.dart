@@ -1,11 +1,12 @@
 import 'package:buxing/buxing.dart';
-import 'package:buxing/src/workers/http_pw_conn.dart';
+import 'package:buxing/src/workers/pw_conn.dart';
 import 'package:meta/meta.dart';
+import 'package:async/async.dart';
 
 const defConnNumber = 5;
 
 class ParallelWorker extends Worker {
-  List<PWConn> _conns = [];
+  List<PWConnBase> _conns = [];
 
   @override
   Future<State> prepare(State state) async {
@@ -18,8 +19,10 @@ class ParallelWorker extends Worker {
 
   @override
   Future<Stream<DataBody>> start(Uri url, State state) async {
-    logger?.log('conn: Sending data request...');
+    logger?.info('conn: Sending data request...');
     _conns = state.conns.map((e) => createPWConn(url, e)).toList();
+    var streams = await Future.wait(_conns.map((e) => e.start()));
+    return StreamGroup.merge(streams);
   }
 
   List<ConnState> _createConnStates(State state) {
@@ -41,7 +44,7 @@ class ParallelWorker extends Worker {
   }
 
   @protected
-  PWConn createPWConn(Uri url, ConnState connState) {
-    return HTTPPWConn(url, connState.position, connState.size);
+  PWConnBase createPWConn(Uri url, ConnState connState) {
+    return PWConn(url, connState.position, connState.size);
   }
 }

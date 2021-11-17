@@ -36,14 +36,14 @@ class Task {
   Future start() async {
     try {
       _setStatus(TaskStatus.working);
-      logger?.log('task: Starting connection...');
+      logger?.info('task: Starting connection...');
       var head = await _conn.connect(url);
-      logger?.log('task: Remote head: ${head.actualURL}:${head.size}');
+      logger?.info('task: Remote head: ${head.actualURL}:${head.size}');
 
       // Setup dumper.
       var dumper = await Dumper.loadOrCreate(destFile, head, logger);
       _dumper = dumper;
-      logger?.log(
+      logger?.info(
           'task: Dumper created with state:\n${dumper.currentState.toJSON()}\n');
       var state = dumper.currentState;
       if (head.size == 0) {
@@ -52,17 +52,17 @@ class Task {
         return;
       }
       if (head.size < 0) {
-        logger?.log('task: Head.size unknown');
+        logger?.info('task: Head.size unknown');
         // Remote size unknown, discard local data, and start from zero.
         await _resetData(state, dumper);
       }
 
       var canResume = await _conn.canResume();
-      logger?.log('task: Can resume? $canResume');
+      logger?.info('task: Can resume? $canResume');
       if (canResume) {
         // Set dumper position to last downloaded position.
         await dumper.seek(state.downloadedSize);
-        logger?.log('task: Dumper position set to: ${state.downloadedSize}');
+        logger?.info('task: Dumper position set to: ${state.downloadedSize}');
       } else {
         // If remove size is unknown, the dumper has been truncated to 0 here.
         // Otherwise, reset dumper position to 0.
@@ -71,25 +71,25 @@ class Task {
         }
       }
 
-      logger?.log('task: Preparing...');
+      logger?.info('task: Preparing...');
       var stateToBeUpdated = await _conn.prepare(state);
       if (stateToBeUpdated != null) {
         state = stateToBeUpdated;
         await dumper.writeState(state);
       }
 
-      logger?.log('task: Downloading...');
-      var dataStream = await _conn.start(state);
+      logger?.info('task: Downloading...');
+      var dataStream = await _conn.start(url, state);
 
       await for (var body in dataStream) {
-        logger
-            ?.log('task: Body received: ${body.data.length}(${body.position})');
+        logger?.info(
+            'task: Body received: ${body.data.length}(${body.position})');
         await dumper.writeData(body.data);
 
         // Update state.
         state.downloadedSize += body.data.length;
         onProgress?.call(TaskProgress(state.downloadedSize, head.size));
-        logger?.log('task: Progress: ${state.downloadedSize}/${head.size}');
+        logger?.info('task: Progress: ${state.downloadedSize}/${head.size}');
 
         if (head.size >= 0 && state.downloadedSize > head.size) {
           throw Exception(
@@ -103,7 +103,7 @@ class Task {
         }
       }
 
-      logger?.log('task: Data transfer done');
+      logger?.info('task: Data transfer done');
       // Complete the task if remote size is unknown.
       if (head.size == -1) {
         await _complete();
@@ -112,7 +112,7 @@ class Task {
       }
     } catch (ex) {
       _setStatus(TaskStatus.error);
-      logger?.log('task: FATAL: $ex');
+      logger?.error('task: FATAL: $ex');
       await close();
       error = ex;
     }
@@ -131,13 +131,13 @@ class Task {
 
   Future _complete() async {
     _setStatus(TaskStatus.completed);
-    logger?.log('task: Completing task...');
+    logger?.info('task: Completing task...');
     await _dumper!.complete();
     _dumper = null;
   }
 
   Future _resetData(State state, Dumper dumper) async {
-    logger?.log('task: Resetting task...');
+    logger?.info('task: Resetting task...');
     state.downloadedSize = 0;
     await dumper.writeState(state);
     await dumper.truncate(0);

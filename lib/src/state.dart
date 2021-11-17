@@ -40,8 +40,8 @@ class State {
 
   String toJSON() {
     return jsonEncode({
-      urlKey: head.url,
-      actualUrlKey: head.actualURL,
+      urlKey: head.url.toString(),
+      actualUrlKey: head.actualURL.toString(),
       sizeKey: head.size,
       downloadedSizeKey: downloadedSize,
       parallelKey: parallel,
@@ -53,8 +53,8 @@ class State {
     // Any errors thrown here are expected and should be handled
     // as data corruption.
     var map = jsonDecode(json) as Map<String, dynamic>;
-    var state = State(DataHead(map[urlKey] as String,
-        map[actualUrlKey] as String, map[sizeKey] as int));
+    var state = State(DataHead(Uri.parse(map[urlKey] as String),
+        Uri.parse(map[actualUrlKey] as String), map[sizeKey] as int));
     state.downloadedSize = map[downloadedSizeKey] as int;
     state.parallel = map[parallelKey] as bool;
     state.conns = List<ConnState>.from(map[connKey] as List<dynamic>);

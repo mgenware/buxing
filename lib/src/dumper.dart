@@ -44,11 +44,11 @@ class Dumper {
   }
 
   Future complete() async {
-    logger?.log('dumper: Completing');
+    logger?.info('dumper: Completing');
     await close();
-    logger?.log('dumper: Deleting state file');
+    logger?.info('dumper: Deleting state file');
     await stateFile.delete();
-    logger?.log('dumper: Renaming data file');
+    logger?.info('dumper: Renaming data file');
     await dataFile.rename(path);
   }
 
@@ -58,7 +58,7 @@ class Dumper {
     if (_closed) {
       return;
     }
-    logger?.log('dumper: Closing RAF');
+    logger?.info('dumper: Closing RAF');
     await _dataRAF!.close();
     _dataRAF = null;
     _closed = true;
@@ -73,7 +73,7 @@ class Dumper {
       throw Exception(
           'Invalid seek position $poz, maximum allowed ${currentState.head.size - 1}');
     }
-    logger?.log('dumper: Seek: $poz');
+    logger?.info('dumper: Seek: $poz');
     await _dataRAF!.setPosition(poz);
   }
 
@@ -83,7 +83,7 @@ class Dumper {
   }
 
   Future truncate(int length) async {
-    logger?.log('dumper: Truncate data to $length');
+    logger?.info('dumper: Truncate data to $length');
     await _dataRAF!.truncate(length);
   }
 
@@ -130,7 +130,7 @@ class Dumper {
       return null;
     } catch (e) {
       // Corrupted state file, returning null.
-      logger?.log('dumper: Error loading state "$e"');
+      logger?.error('dumper: Error loading state "$e"');
       return null;
     }
   }
@@ -139,10 +139,10 @@ class Dumper {
       [Logger? logger]) async {
     var state = await load(dest, head, logger);
     if (state != null) {
-      logger?.log('dumper: State loaded');
+      logger?.info('dumper: State loaded');
       return state;
     }
-    logger?.log('dumper: Creating state');
+    logger?.info('dumper: Creating state');
     return create(dest, head, logger);
   }
 }

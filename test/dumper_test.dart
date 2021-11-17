@@ -100,7 +100,7 @@ void main() {
 
     // Create a new dumper with the same name.
     const newSize = 7;
-    const newURL = '_new_url_';
+    var newURL = Uri.parse('https://__new_url__');
     var head = DataHead(newURL, newURL, newSize);
     d = await Dumper.create(d.path, head);
     expect(await d.readDataString(), '00000000000000');

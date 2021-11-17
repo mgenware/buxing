@@ -1,29 +1,23 @@
-import 'package:meta/meta.dart';
+import 'package:buxing/src/workers/http_client_wrapper.dart';
+import 'package:buxing/src/workers/pw_conn_base.dart';
 
-abstract class PWConn {
-  final Uri url;
-  final int position;
+class PWConn extends PWConnBase {
+  final HTTPClientWrapper _conn = HTTPClientWrapper();
 
-  // Size can be halved if the connection spawns another connection.
-  int _size;
+  PWConn(Uri url, int position, int size) : super(url, position, size);
 
-  @protected
-  int _downloaded = 0;
+  void close() {
+    _conn.close();
+  }
 
-  int get size => _size;
+  @override
+  Future<Stream<List<int>>> startCore() async {
+    var resp = await _conn.get(url);
+    return resp.stream;
+  }
 
-  int get downloaded => _downloaded;
-
-  PWConn(this.url, this.position, int size) : _size = size;
-
-  Future<Stream<List<int>>> start();
-
-  PWConn create(Uri url, int position, int size);
-  PWConn spawn() {
-    var leftSize = (size / 2).round();
-    var rightSize = size - leftSize;
-    var newConn = create(url, position + leftSize, rightSize);
-    _size = leftSize;
-    return newConn;
+  @override
+  PWConn create(Uri url, int position, int size) {
+    return PWConn(url, position, size);
   }
 }

@@ -11,12 +11,12 @@ class TWorker extends WorkerBase {
   bool canResumeValue = true;
 
   @override
-  Future<DataHead> prepare(String url) async {
+  Future<DataHead> connect(Uri url) async {
     return Future(() => DataHead(url, url, size));
   }
 
   @override
-  Future<Stream<List<int>>> start() async {
+  Future<Stream<DataBody>> start(Uri url, State state) async {
     return Future(() => _getStream());
   }
 
@@ -25,18 +25,18 @@ class TWorker extends WorkerBase {
     return Future(() => canResumeValue);
   }
 
-  Stream<List<int>> _getStream() async* {
+  Stream<DataBody> _getStream() async* {
     if (size == 0) {
       return;
     }
     if (segment != -1) {
-      yield [segment, 0];
+      yield DataBody([segment, 0]);
     } else {
       for (int i = 0; i < 5; i++) {
         if (streamError && i == 3) {
           throw Exception('Intentional exception');
         }
-        yield [i, 0];
+        yield DataBody([i, 0]);
       }
     }
   }

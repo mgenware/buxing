@@ -1,6 +1,6 @@
 class DataHead {
-  final String url;
-  final String actualURL;
+  final Uri url;
+  final Uri actualURL;
   final int size;
 
   DataHead(this.url, this.actualURL, this.size);
