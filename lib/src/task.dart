@@ -22,9 +22,8 @@ class Task {
   TaskStatus _status = TaskStatus.unstarted;
   bool _closed = false;
 
-  Task(this.url, this.destFile,
-      {WorkerBase? connection, bool logging = false}) {
-    _conn = connection ?? Worker();
+  Task(this.url, this.destFile, {WorkerBase? worker, bool logging = false}) {
+    _conn = worker ?? Worker();
     if (logging) {
       logger = Logger();
       _conn.logger = logger;

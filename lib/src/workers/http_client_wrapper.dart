@@ -22,7 +22,8 @@ class HTTPClientWrapper {
   }
 
   void _throwOnErrorHTTPCode(http.Response resp) {
-    if (resp.statusCode != 200) {
+    var code = resp.statusCode;
+    if (code < 200 || code > 299) {
       throw Exception('Request failed with HTTP code ${resp.statusCode}');
     }
   }
