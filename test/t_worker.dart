@@ -42,7 +42,7 @@ class TWorker extends WorkerBase {
   }
 
   @override
-  void close() {
+  Future<void> close() async {
     closed = true;
   }
 }

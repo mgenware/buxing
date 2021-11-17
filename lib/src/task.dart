@@ -26,7 +26,7 @@ class Task {
     _conn = worker ?? Worker();
   }
 
-  Future start() async {
+  Future<void> start() async {
     try {
       _setStatus(TaskStatus.working);
       logger?.info('task: Starting connection...');
@@ -117,24 +117,24 @@ class Task {
   }
 
   /// Releases any resources of the current dumper.
-  Future close() async {
+  Future<void> close() async {
     // This check is necessary as [complete] might have called [close].
     if (_closed) {
       return;
     }
-    _conn.close();
+    await _conn.close();
     await _dumper?.close();
     _closed = true;
   }
 
-  Future _complete() async {
+  Future<void> _complete() async {
     _setStatus(TaskStatus.completed);
     logger?.info('task: Completing task...');
     await _dumper!.complete();
     _dumper = null;
   }
 
-  Future _resetData(State state, Dumper dumper) async {
+  Future<void> _resetData(State state, Dumper dumper) async {
     logger?.info('task: Resetting task...');
     state.downloadedSize = 0;
     await dumper.writeState(state);

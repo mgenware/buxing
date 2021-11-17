@@ -39,11 +39,11 @@ class Dumper {
   Dumper._(this.path, this._currentState, this.dataFile, this.stateFile,
       this.logger);
 
-  Future _prepare() async {
+  Future<void> _prepare() async {
     _dataRAF = await dataFile.open(mode: FileMode.append);
   }
 
-  Future complete() async {
+  Future<void> complete() async {
     logger?.info('dumper: Completing');
     await close();
     logger?.info('dumper: Deleting state file');
@@ -53,7 +53,7 @@ class Dumper {
   }
 
   /// Releases any resources of the current dumper.
-  Future close() async {
+  Future<void> close() async {
     // This check is necessary as [complete] might have called [close].
     if (_closed) {
       return;
@@ -64,11 +64,11 @@ class Dumper {
     _closed = true;
   }
 
-  Future writeData(List<int> data) async {
+  Future<void> writeData(List<int> data) async {
     await _dataRAF!.writeFrom(data);
   }
 
-  Future seek(int poz) async {
+  Future<void> seek(int poz) async {
     if (currentState.head.size >= 0 && poz >= currentState.head.size) {
       throw Exception(
           'Invalid seek position $poz, maximum allowed ${currentState.head.size - 1}');
@@ -76,12 +76,12 @@ class Dumper {
     await _dataRAF!.setPosition(poz);
   }
 
-  Future writeState(State state) async {
+  Future<void> writeState(State state) async {
     _currentState = state;
     await stateFile.writeAsString(state.toJSON());
   }
 
-  Future truncate(int length) async {
+  Future<void> truncate(int length) async {
     logger?.info('dumper: Truncate data to $length');
     await _dataRAF!.truncate(length);
   }

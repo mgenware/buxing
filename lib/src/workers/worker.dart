@@ -36,7 +36,7 @@ class Worker extends WorkerBase {
   }
 
   @override
-  void close() {
+  Future<void> close() async {
     _conn.close();
   }
 

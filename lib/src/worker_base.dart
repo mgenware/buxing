@@ -14,5 +14,5 @@ abstract class WorkerBase {
 
   Future<Stream<DataBody>> start(Uri url, State state);
   Future<bool> canResume();
-  void close() {}
+  Future<void> close() async {}
 }

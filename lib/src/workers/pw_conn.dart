@@ -6,7 +6,8 @@ class PWConn extends PWConnBase {
 
   PWConn(Uri url, int position, int size) : super(url, position, size);
 
-  void close() {
+  @override
+  Future<void> close() async {
     _conn.close();
   }
 

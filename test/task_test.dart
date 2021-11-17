@@ -18,7 +18,7 @@ Task newTask([WorkerBase? conn]) {
 }
 
 extension Test on Task {
-  Future readDestData() async {
+  Future<String> readDestData() async {
     var bytes = await File(destFile).readAsBytes();
     return hex.encode(bytes);
   }

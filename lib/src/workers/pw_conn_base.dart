@@ -43,4 +43,6 @@ abstract class PWConnBase {
     _size = leftSize;
     return newConn;
   }
+
+  Future<void> close() async {}
 }

@@ -22,7 +22,7 @@ Future<Dumper> newDumper({int size = defSize}) async {
 }
 
 extension Test on Dumper {
-  Future writeString(String s) async {
+  Future<void> writeString(String s) async {
     await writeData(ascii.encode(s));
   }
 

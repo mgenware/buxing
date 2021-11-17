@@ -47,4 +47,9 @@ class ParallelWorker extends Worker {
   PWConnBase createPWConn(Uri url, ConnState connState) {
     return PWConn(url, connState.position, connState.size);
   }
+
+  @override
+  Future<void> close() async {
+    await Future.wait(_conns.map((e) => e.close()));
+  }
 }
