@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:convert/convert.dart';
 import 'package:buxing/buxing.dart';
 import 'package:test/test.dart';
 
@@ -14,6 +17,13 @@ Task newTask([WorkerBase? conn]) {
   return task;
 }
 
+extension Test on Task {
+  Future<String> readDestData() async {
+    var bytes = await File(destFile).readAsBytes();
+    return hex.encode(bytes);
+  }
+}
+
 void main() {
   test('Completed successfully with progress', () async {
     var t = newTask();
@@ -24,13 +34,6 @@ void main() {
     await t.start();
     expect(await t.readDestData(), '00000100020003000400');
     expect(progList, [0.2, 0.4, 0.6, 0.8, 1.0]);
-    expect(t.status, TaskStatus.completed);
-  });
-
-  test('Completed successfully (real file)', () async {
-    var t = Task(realURL, newFile());
-    await t.start();
-    await verifyRealFile(t.destFile);
     expect(t.status, TaskStatus.completed);
   });
 
