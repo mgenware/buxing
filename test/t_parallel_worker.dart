@@ -26,14 +26,16 @@ modification, are permitted provided that the following conditions are met:
 var pwBytes = utf8.encode(pwString);
 
 class TPWConn extends PWConnBase {
-  TPWConn(Uri url, int position, int size) : super(url, position, size);
+  final bool slow;
+  TPWConn(Uri url, int position, int size, {this.slow = false})
+      : super(url, position, size);
 
   @override
   Future<Stream<List<int>>> startCore() async {
     var part = pwBytes.sublist(position, position + size);
-    var mbs = MockByteStream(part, 100,
-        minDelay: Duration(milliseconds: 20),
-        maxDelay: Duration(milliseconds: 100));
+    var mbs = MockByteStream(part, 50,
+        minDelay: Duration(milliseconds: slow ? 200 : 20),
+        maxDelay: Duration(milliseconds: slow ? 800 : 100));
     return mbs.stream();
   }
 
@@ -44,6 +46,9 @@ class TPWConn extends PWConnBase {
 }
 
 class TParallelWorker extends ParallelWorker {
+  final bool slow;
+  TParallelWorker({this.slow = false});
+
   @override
   Future<DataHead> connect(Uri url) async {
     return Future(() => DataHead(url, url, pwBytes.length));
@@ -51,7 +56,7 @@ class TParallelWorker extends ParallelWorker {
 
   @override
   PWConnBase createPWConn(Uri url, ConnState connState) {
-    return TPWConn(url, connState.position, connState.size);
+    return TPWConn(url, connState.position, connState.size, slow: slow);
   }
 
   @override

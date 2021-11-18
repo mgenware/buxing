@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:buxing/buxing.dart';
 import 'package:test/test.dart';
 
@@ -15,12 +13,6 @@ Task newPTask([WorkerBase? conn]) {
   return task;
 }
 
-extension Test on Task {
-  Future<String> readDestString() async {
-    return File(destFile).readAsString();
-  }
-}
-
 void main() {
   test('Completed successfully with progress', () async {
     var t = newPTask();
@@ -32,5 +24,15 @@ void main() {
     expect(await t.readDestString(), pwString);
     expect(progList.every((e) => e > 0 && e <= 100), true);
     expect(t.status, TaskStatus.completed);
+  });
+
+  test('Restart', () async {
+    var t = newPTask(TParallelWorker(slow: true));
+    Future.delayed(Duration(milliseconds: 500), () async {
+      await t.stop();
+    });
+    await t.start();
+    expect(await t.readDestString(), pwString);
+    expect(t.status, TaskStatus.stopped);
   });
 }
