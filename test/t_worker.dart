@@ -21,7 +21,7 @@ class TWorker extends WorkerBase {
   }
 
   @override
-  Future<bool> canResume() async {
+  Future<bool> canResume(Uri url) async {
     return Future(() => canResumeValue);
   }
 

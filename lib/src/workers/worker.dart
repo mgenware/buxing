@@ -6,12 +6,10 @@ import 'http_client_wrapper.dart';
 
 class Worker extends WorkerBase {
   final HTTPClientWrapper _conn = HTTPClientWrapper();
-  Uri? _url;
 
   @override
   Future<DataHead> connect(Uri url) async {
     logger?.info('conn: Sending head request...');
-    _url = url;
     var headResp = await _conn.head(url);
     _logResponse(headResp);
 
@@ -25,14 +23,14 @@ class Worker extends WorkerBase {
   @override
   Future<Stream<DataBody>> start(Uri url, State state) async {
     logger?.info('conn: Sending data request...');
-    var resp = await _conn.get(_mustGetURL());
+    var resp = await _conn.get(url);
     return resp.stream.map((event) => DataBody(event));
   }
 
   @override
-  Future<bool> canResume() {
+  Future<bool> canResume(Uri url) {
     logger?.info('conn: Sending range check request...');
-    return _conn.canResume(_mustGetURL());
+    return _conn.canResume(url);
   }
 
   @override
@@ -44,14 +42,5 @@ class Worker extends WorkerBase {
     logger?.info('conn: head:status:\n${resp.statusCode}');
     logger?.info('conn: head:body:\n${resp.body}');
     logger?.info('conn: head:headers:\n${resp.headers}');
-  }
-
-  Uri _mustGetURL() {
-    var url = _url;
-    if (url == null) {
-      throw Exception(
-          'Unexpected null Uri. Make sure [prepare] is called before [start].');
-    }
-    return url;
   }
 }

@@ -14,7 +14,6 @@ class Task {
   final String destFile;
   late final Logger? logger;
   Function(TaskProgress)? onProgress;
-  dynamic error;
   TaskStatus get status => _status;
 
   late final WorkerBase _conn;
@@ -50,7 +49,7 @@ class Task {
         await _resetData(state, dumper);
       }
 
-      var canResume = await _conn.canResume();
+      var canResume = await _conn.canResume(url);
       logger?.info('task: Can resume? $canResume');
       if (canResume) {
         // Set dumper position to last downloaded position.
@@ -112,7 +111,7 @@ class Task {
       _setStatus(TaskStatus.error);
       logger?.error('task: FATAL: $ex');
       await close();
-      error = ex;
+      rethrow;
     }
   }
 
