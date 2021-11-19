@@ -1,3 +1,4 @@
+import 'package:buxing/src/data.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
 
@@ -11,8 +12,11 @@ class HTTPClientWrapper {
     return resp;
   }
 
-  Future<http.StreamedResponse> get(Uri url) async {
+  Future<http.StreamedResponse> get(Uri url, {DataRange? range}) async {
     var req = http.Request('GET', url);
+    if (range != null) {
+      req.headers['Range'] = 'bytes=${range.position}-${range.size}';
+    }
     return _client.send(req);
   }
 

@@ -105,7 +105,7 @@ void main() {
     d = await Dumper.create(d.path, head);
     expect(await d.readDataString(), '00000000000000');
     expect(await d.readStateString(),
-        '{"url":"https://__new_url__","actual_url":"https://__new_url__","size":7,"downloaded_size":0,"parallel":false,"conn":[]}');
+        '{"url":"https://__new_url__","actual_url":"https://__new_url__","size":7,"downloaded_size":0}');
   });
 
   test('Load', () async {
@@ -118,7 +118,7 @@ void main() {
     var nd = await Dumper.load(d.path, d.currentState.head);
     expect(await nd!.readDataString(), '01020304000000000000');
     expect(await nd.readStateString(),
-        '{"url":"https://www.mgenware.com","actual_url":"https://www.mgenware.com","size":10,"downloaded_size":0,"parallel":false,"conn":[]}');
+        '{"url":"_url_","actual_url":"_url_","size":10,"downloaded_size":0}');
 
     // Load dumper with a different state.
     var head = DataHead(defURL, defURL, 7);
@@ -136,14 +136,14 @@ void main() {
     var nd = await Dumper.loadOrCreate(d.path, d.currentState.head);
     expect(await nd.readDataString(), '01020304000000000000');
     expect(await nd.readStateString(),
-        '{"url":"https://www.mgenware.com","actual_url":"https://www.mgenware.com","size":10,"downloaded_size":0,"parallel":false,"conn":[]}');
+        '{"url":"_url_","actual_url":"_url_","size":10,"downloaded_size":0}');
 
     // Load dumper with a different state.
     var head = DataHead(defURL, defURL, 7);
     nd = await Dumper.loadOrCreate(d.path, head);
     expect(await nd.readDataString(), '00000000000000');
     expect(await nd.readStateString(),
-        '{"url":"https://www.mgenware.com","actual_url":"https://www.mgenware.com","size":7,"downloaded_size":0,"parallel":false,"conn":[]}');
+        '{"url":"_url_","actual_url":"_url_","size":7,"downloaded_size":0}');
   });
 
   test('Truncate', () async {

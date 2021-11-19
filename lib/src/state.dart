@@ -12,20 +12,20 @@ const connKey = 'conn';
 
 class ConnState {
   final int position;
-  int downloadSize;
+  int downloadedSize;
   int size;
 
-  ConnState(this.position, this.downloadSize, this.size);
+  ConnState(this.position, this.downloadedSize, this.size);
 
   ConnState.fromJson(Map<String, dynamic> json)
       : position = json[positionKey] as int,
-        downloadSize = json[downloadedSizeKey] as int,
+        downloadedSize = json[downloadedSizeKey] as int,
         size = json[sizeKey] as int;
 
   // ignore: implicit_dynamic_map_literal
   Map<String, dynamic> toJson() => {
         positionKey: position,
-        downloadedSizeKey: downloadSize,
+        downloadedSizeKey: downloadedSize,
         sizeKey: size,
       };
 }
@@ -39,14 +39,20 @@ class State {
   State(this.head);
 
   String toJSON() {
-    return jsonEncode({
+    // ignore: implicit_dynamic_map_literal
+    Map<String, dynamic> dict = {
       urlKey: head.url.toString(),
       actualUrlKey: head.actualURL.toString(),
       sizeKey: head.size,
       downloadedSizeKey: downloadedSize,
-      parallelKey: parallel,
-      connKey: conns,
-    });
+    };
+    if (parallel) {
+      dict[parallelKey] = true;
+    }
+    if (conns.isNotEmpty) {
+      dict[connKey] = conns;
+    }
+    return jsonEncode(dict);
   }
 
   static State fromJSON(String json) {
@@ -56,8 +62,9 @@ class State {
     var state = State(DataHead(Uri.parse(map[urlKey] as String),
         Uri.parse(map[actualUrlKey] as String), map[sizeKey] as int));
     state.downloadedSize = map[downloadedSizeKey] as int;
-    state.parallel = map[parallelKey] as bool;
-    for (var dict in map[connKey] as List<dynamic>) {
+    state.parallel = (map[parallelKey] ?? false) as bool;
+    // ignore: implicit_dynamic_list_literal
+    for (var dict in (map[connKey] ?? []) as List<dynamic>) {
       state.conns.add(ConnState.fromJson(dict as Map<String, dynamic>));
     }
     return state;

@@ -7,19 +7,23 @@ class TaskProgress {
   TaskProgress(this.downloaded, this.total);
 }
 
-enum TaskStatus { unstarted, working, paused, completed, error }
+enum TaskStatus { unstarted, working, completed, error }
 
 class Task {
   final Uri url;
   final String destFile;
   late final Logger? logger;
   Function(TaskProgress)? onProgress;
+  Function(State, int)? onBeforeDownload;
   TaskStatus get status => _status;
 
   late final WorkerBase _conn;
   Dumper? _dumper;
   TaskStatus _status = TaskStatus.unstarted;
   bool _closed = false;
+
+  String? get stateFile => _dumper?.stateFile.path;
+  State? get state => _dumper?.currentState;
 
   Task(this.url, this.destFile, {WorkerBase? worker, this.logger}) {
     _conn = worker ?? Worker();
@@ -59,17 +63,20 @@ class Task {
         // If remove size is unknown, the dumper has been truncated to 0 here.
         // Otherwise, reset dumper position to 0.
         if (head.size > 0) {
-          await dumper.seek(0);
+          await _resetData(state, dumper);
         }
       }
 
       logger?.info('task: Preparing...');
       var stateToBeUpdated = await _conn.prepare(state);
       if (stateToBeUpdated != null) {
+        logger?.info(
+            'task: [prepare] returned state ${stateToBeUpdated.toJSON()}');
         state = stateToBeUpdated;
         await dumper.writeState(state);
       }
 
+      onBeforeDownload?.call(dumper.currentState, dumper.position);
       logger?.info('task: Downloading...');
       var dataStream = await _conn.start(url, state);
 
@@ -137,12 +144,13 @@ class Task {
     logger?.info('task: Resetting task...');
     state.downloadedSize = 0;
     await dumper.writeState(state);
+    await dumper.seek(0);
     await dumper.truncate(0);
   }
 
   void _setStatus(TaskStatus status) {
-    if (_status == status) {
-      throw Exception('Invalid status change');
+    if (status.index <= _status.index) {
+      throw Exception('Invalid status change from $_status to $status');
     }
     _status = status;
   }

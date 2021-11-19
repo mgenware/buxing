@@ -26,8 +26,13 @@ class Dumper {
   RandomAccessFile? _dataRAF;
   State _currentState;
   bool _closed = false;
+  int _poz = -1;
 
+  /// Last written state.
   State get currentState => _currentState;
+
+  /// Returns the current file position.
+  int get position => _poz;
 
   static Future<Dumper> _newDumper(String path, State initialState,
       File dataFile, File stateFile, Logger? logger) async {
@@ -40,7 +45,9 @@ class Dumper {
       this.logger);
 
   Future<void> _prepare() async {
-    _dataRAF = await dataFile.open(mode: FileMode.append);
+    var raf = await dataFile.open(mode: FileMode.append);
+    _poz = await raf.length();
+    _dataRAF = raf;
   }
 
   Future<void> complete() async {
@@ -73,6 +80,7 @@ class Dumper {
       throw Exception(
           'Invalid seek position $poz, maximum allowed ${currentState.head.size - 1}');
     }
+    _poz = poz;
     await _dataRAF!.setPosition(poz);
   }
 

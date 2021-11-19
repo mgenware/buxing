@@ -11,7 +11,7 @@ dev_dependencies:
   uuid: ^3.0.5
   convert: ^3.0.1
   mgenware_dart_lints: ^1.0.0
-  mock_byte_stream: ^1.0.1
+  mock_byte_stream: ^1.1.0
 dependencies:
   http: ^0.13.4
   meta: ^1.7.0
