@@ -22,8 +22,8 @@ class TWorker extends WorkerBase {
 
   @override
   Future<Stream<DataBody>> start(Uri url, State state) async {
-    if (state.downloadedSize > 0) {
-      startPoz = state.downloadedSize;
+    if (state.transferred > 0) {
+      startPoz = state.transferred;
     }
     return Future(() => _getStream());
   }

@@ -59,8 +59,8 @@ class Task {
       logger?.info('task: Can resume? $canResume');
       if (canResume) {
         // Set dumper position to last downloaded position.
-        await dumper.seek(state.downloadedSize);
-        logger?.info('task: Dumper position set to: ${state.downloadedSize}');
+        await dumper.seek(state.transferred);
+        logger?.info('task: Dumper position set to: ${state.transferred}');
       } else {
         // If remove size is unknown, the dumper has been truncated to 0 here.
         // Otherwise, reset dumper position to 0.
@@ -93,15 +93,15 @@ class Task {
         await dumper.writeData(body.data);
 
         // Update state.
-        state.downloadedSize += body.data.length;
-        onProgress?.call(TaskProgress(state.downloadedSize, head.size));
-        logger?.verbose('task: Progress: ${state.downloadedSize}/${head.size}');
+        state.transferred += body.data.length;
+        onProgress?.call(TaskProgress(state.transferred, head.size));
+        logger?.verbose('task: Progress: ${state.transferred}/${head.size}');
 
-        if (head.size >= 0 && state.downloadedSize > head.size) {
+        if (head.size >= 0 && state.transferred > head.size) {
           throw Exception(
-              'task: Remote file overflow (${state.downloadedSize}/${head.size}).');
+              'task: Remote file overflow (${state.transferred}/${head.size}).');
         }
-        if (state.downloadedSize == head.size) {
+        if (state.transferred == head.size) {
           await _complete();
           return;
         } else {
@@ -148,7 +148,7 @@ class Task {
 
   Future<void> _resetData(State state, Dumper dumper) async {
     logger?.info('task: Resetting task...');
-    state.downloadedSize = 0;
+    state.transferred = 0;
     await dumper.writeState(state);
     await dumper.seek(0);
     await dumper.truncate(0);

@@ -32,7 +32,7 @@ class ParallelWorker extends Worker {
       var stateConn = state.conns[i];
       var pwConn = createPWConn(url, stateConn);
       pwConn.onTransfer = () {
-        stateConn.downloadedSize = pwConn.downloaded;
+        stateConn.transferred = pwConn.downloaded;
         stateConn.position = pwConn.position;
       };
       _conns.add(pwConn);

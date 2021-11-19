@@ -23,8 +23,8 @@ class Worker extends WorkerBase {
   @override
   Future<Stream<DataBody>> start(Uri url, State state) async {
     logger?.info('worker: Sending data request...');
-    DataRange? range = state.downloadedSize > 0
-        ? DataRange(state.downloadedSize, state.head.size)
+    DataRange? range = state.transferred > 0
+        ? DataRange(state.transferred, state.head.size)
         : null;
     var resp = await _conn.get(url, range: range);
     return resp.stream.map((event) => DataBody(event));
