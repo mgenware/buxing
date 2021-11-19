@@ -17,23 +17,25 @@ class Task {
   Function(State, int)? onBeforeDownload;
   TaskStatus get status => _status;
 
-  late final WorkerBase _conn;
+  late final WorkerBase _worker;
   Dumper? _dumper;
   TaskStatus _status = TaskStatus.unstarted;
+  bool _workerClosed = false;
   bool _closed = false;
 
   String? get stateFile => _dumper?.stateFile.path;
   State? get state => _dumper?.currentState;
 
   Task(this.url, this.destFile, {WorkerBase? worker, this.logger}) {
-    _conn = worker ?? Worker();
+    _worker = worker ?? Worker();
+    _worker.logger = logger;
   }
 
   Future<void> start() async {
     try {
       _setStatus(TaskStatus.working);
       logger?.info('task: Starting connection...');
-      var head = await _conn.connect(url);
+      var head = await _worker.connect(url);
       logger?.info('task: Remote head: ${head.actualURL}:${head.size}');
 
       // Setup dumper.
@@ -53,7 +55,7 @@ class Task {
         await _resetData(state, dumper);
       }
 
-      var canResume = await _conn.canResume(url);
+      var canResume = await _worker.canResume(url);
       logger?.info('task: Can resume? $canResume');
       if (canResume) {
         // Set dumper position to last downloaded position.
@@ -68,7 +70,7 @@ class Task {
       }
 
       logger?.info('task: Preparing...');
-      var stateToBeUpdated = await _conn.prepare(state);
+      var stateToBeUpdated = await _worker.prepare(state);
       if (stateToBeUpdated != null) {
         logger?.info(
             'task: [prepare] returned state ${stateToBeUpdated.toJSON()}');
@@ -78,11 +80,11 @@ class Task {
 
       onBeforeDownload?.call(dumper.currentState, dumper.position);
       logger?.info('task: Downloading...');
-      var dataStream = await _conn.start(url, state);
+      var dataStream = await _worker.start(url, state);
 
       await for (var body in dataStream) {
         logger?.verbose(
-            'task: Body received: ${body.data.length}(${body.position})');
+            'task: Body received: ${body.data.length}, poz: ${body.position}');
         var poz = body.position;
         if (poz != null) {
           logger?.verbose('task: Seek: $poz');
@@ -106,6 +108,8 @@ class Task {
           await dumper.writeState(state);
         }
       }
+      await _worker.transferCompleted();
+      await _closeWorker();
 
       logger?.info('task: Data transfer done');
       // Complete the task if remote size is unknown.
@@ -128,7 +132,8 @@ class Task {
     if (_closed) {
       return;
     }
-    await _conn.close();
+    await _closeWorker();
+    ;
     await _dumper?.close();
     _closed = true;
   }
@@ -138,6 +143,7 @@ class Task {
     logger?.info('task: Completing task...');
     await _dumper!.complete();
     _dumper = null;
+    await close();
   }
 
   Future<void> _resetData(State state, Dumper dumper) async {
@@ -153,5 +159,13 @@ class Task {
       throw Exception('Invalid status change from $_status to $status');
     }
     _status = status;
+  }
+
+  Future<void> _closeWorker() async {
+    if (_workerClosed) {
+      return;
+    }
+    _workerClosed = true;
+    await _worker.close();
   }
 }

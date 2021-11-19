@@ -6,12 +6,19 @@ import 'package:async/async.dart';
 const defConnNumber = 5;
 
 class ParallelWorker extends Worker {
-  List<PWConnBase> _conns = [];
+  final List<PWConnBase> _conns = [];
+  late final int concurrency;
+
+  ParallelWorker({int concurrency = -1}) {
+    this.concurrency = concurrency <= 0 ? defConnNumber : concurrency;
+  }
 
   @override
   Future<State> prepare(State state) async {
+    logger?.info('p_worker: Sending head request...');
     if (state.conns.isEmpty) {
       var connStates = _createConnStates(state);
+      logger?.info('p_worker: Created ${connStates.length} state conns...');
       state.conns = connStates;
     }
     return state;
@@ -19,18 +26,27 @@ class ParallelWorker extends Worker {
 
   @override
   Future<Stream<DataBody>> start(Uri url, State state) async {
-    logger?.info('conn: Sending data request...');
-    _conns = state.conns.map((e) => createPWConn(url, e)).toList();
+    logger?.info('p_worker: Sending data request...');
+    logger?.info('p_worker: Got ${state.conns.length} state conns...');
+    for (var i = 0; i < state.conns.length; i++) {
+      var stateConn = state.conns[i];
+      var pwConn = createPWConn(url, stateConn);
+      pwConn.onTransfer = () {
+        stateConn.downloadedSize = pwConn.downloaded;
+        stateConn.position = pwConn.position;
+      };
+      _conns.add(pwConn);
+    }
     var streams = await Future.wait(_conns.map((e) => e.start()));
     return StreamGroup.merge(streams);
   }
 
   List<ConnState> _createConnStates(State state) {
-    var connSize = (state.head.size / defConnNumber).round();
+    var connSize = (state.head.size / concurrency).round();
     ConnState? prevState;
     ConnState? curState;
     List<ConnState> conns = [];
-    for (var i = 0; i < defConnNumber; i++) {
+    for (var i = 0; i < concurrency; i++) {
       curState = ConnState(
           prevState != null ? prevState.position + prevState.size : 0,
           0,

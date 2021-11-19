@@ -9,7 +9,7 @@ class Worker extends WorkerBase {
 
   @override
   Future<DataHead> connect(Uri url) async {
-    logger?.info('conn: Sending head request...');
+    logger?.info('worker: Sending head request...');
     var headResp = await _conn.head(url);
     _logResponse(headResp);
 
@@ -22,7 +22,7 @@ class Worker extends WorkerBase {
 
   @override
   Future<Stream<DataBody>> start(Uri url, State state) async {
-    logger?.info('conn: Sending data request...');
+    logger?.info('worker: Sending data request...');
     DataRange? range = state.downloadedSize > 0
         ? DataRange(state.downloadedSize, state.head.size)
         : null;
@@ -32,7 +32,7 @@ class Worker extends WorkerBase {
 
   @override
   Future<bool> canResume(Uri url) {
-    logger?.info('conn: Sending range check request...');
+    logger?.info('worker: Sending range check request...');
     return _conn.canResume(url);
   }
 
@@ -42,8 +42,8 @@ class Worker extends WorkerBase {
   }
 
   void _logResponse(http.Response resp) {
-    logger?.info('conn: head:status:\n${resp.statusCode}');
-    logger?.info('conn: head:body:\n${resp.body}');
-    logger?.info('conn: head:headers:\n${resp.headers}');
+    logger?.info('worker: head:status:\n${resp.statusCode}');
+    logger?.info('worker: head:body:\n${resp.body}');
+    logger?.info('worker: head:headers:\n${resp.headers}');
   }
 }

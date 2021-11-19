@@ -11,7 +11,7 @@ const positionKey = 'position';
 const connKey = 'conn';
 
 class ConnState {
-  final int position;
+  int position;
   int downloadedSize;
   int size;
 

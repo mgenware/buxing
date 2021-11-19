@@ -16,6 +16,8 @@ abstract class PWConnBase {
   int get position => _position;
   int get downloaded => _downloaded;
 
+  Function()? onTransfer;
+
   PWConnBase(this.url, int position, int size)
       : _size = size,
         _position = position;
@@ -29,6 +31,7 @@ abstract class PWConnBase {
     var body = DataBody(bytes, position: _position);
     _position += bytes.length;
     _downloaded += bytes.length;
+    onTransfer?.call();
     return body;
   }
 
