@@ -153,7 +153,6 @@ class Task {
       return;
     }
     await _closeWorker();
-    ;
     await _dumper?.close();
     _closed = true;
   }
