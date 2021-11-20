@@ -9,7 +9,7 @@ abstract class WorkerBase {
 
   /// Returns a new state if state needs to be updated before [start] is called.
   Future<State?> prepare(State state) {
-    return Future(() => null);
+    return Future.value(null);
   }
 
   Future<Stream<DataBody>> start(State state);

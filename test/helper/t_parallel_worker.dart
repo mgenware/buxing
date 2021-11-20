@@ -44,7 +44,7 @@ class TParallelWorker extends ParallelWorker {
 
   @override
   Future<StateHead> connect(Uri url) async {
-    return Future(() => StateHead(url, url, pwSize));
+    return Future.value(StateHead(url, url, pwSize));
   }
 
   @override

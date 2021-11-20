@@ -17,7 +17,7 @@ class TWorker extends WorkerBase {
     if (headError) {
       throw Exception('Intentional head exception');
     }
-    return Future(() => StateHead(url, url, size));
+    return Future.value(StateHead(url, url, size));
   }
 
   @override
@@ -25,7 +25,7 @@ class TWorker extends WorkerBase {
     if (state.transferred > 0) {
       startPoz = state.transferred;
     }
-    return Future(() => _getStream());
+    return Future.value(_getStream());
   }
 
   @override
