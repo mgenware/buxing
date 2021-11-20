@@ -10,7 +10,7 @@ class TaskProgress {
 enum TaskStatus { unstarted, working, completed, error }
 
 class Task {
-  final Uri url;
+  final Uri originalURL;
   final String destFile;
   late final Logger? logger;
   Function(TaskProgress)? onProgress;
@@ -26,7 +26,7 @@ class Task {
   String? get stateFile => _dumper?.stateFile.path;
   State? get state => _dumper?.currentState;
 
-  Task(this.url, this.destFile, {WorkerBase? worker, this.logger}) {
+  Task(this.originalURL, this.destFile, {WorkerBase? worker, this.logger}) {
     _worker = worker ?? Worker();
     _worker.logger = logger;
   }
@@ -35,8 +35,8 @@ class Task {
     try {
       _setStatus(TaskStatus.working);
       logger?.info('task: Starting connection...');
-      var head = await _worker.connect(url);
-      logger?.info('task: Remote head: ${head.actualURL}:${head.size}');
+      var head = await _worker.connect(originalURL);
+      logger?.info('task: Remote head: ${head.url}:${head.size}');
 
       // Setup dumper.
       var dumper = await Dumper.loadOrCreate(destFile, head, logger);
@@ -55,7 +55,7 @@ class Task {
         await _resetData(state, dumper);
       }
 
-      var canResume = await _worker.canResume(url);
+      var canResume = await _worker.canResume(head);
       logger?.info('task: Can resume? $canResume');
       if (canResume) {
         // Set dumper position to last downloaded position.
@@ -80,7 +80,7 @@ class Task {
 
       onBeforeDownload?.call(dumper.currentState, dumper.position);
       logger?.info('task: Downloading...');
-      var dataStream = await _worker.start(url, state);
+      var dataStream = await _worker.start(state);
 
       await for (var body in dataStream) {
         logger?.verbose(

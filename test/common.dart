@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:buxing/buxing.dart';
 import 'package:convert/convert.dart';
 import 'package:uuid/uuid.dart';
@@ -50,7 +51,8 @@ class TaskWrapper {
       initialPoz = poz;
     };
     task.onProgress = (info) {
-      progressValues.add(info.downloaded.toDouble() / info.total);
+      progressValues
+          .add(_roundDouble(info.downloaded.toDouble() / info.total, 2));
     };
   }
 
@@ -73,5 +75,10 @@ class TaskWrapper {
 
   Future<void> close() {
     return task.close();
+  }
+
+  double _roundDouble(double val, int places) {
+    num mod = pow(10.0, places);
+    return (val * mod).round().toDouble() / mod;
   }
 }

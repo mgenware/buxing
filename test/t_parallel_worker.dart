@@ -1,15 +1,16 @@
 import 'package:buxing/buxing.dart';
 
-const pwSize = 40;
+const pwSize = 43;
 const pwNumConns = 4;
 
-class TPWConn extends PWConnBase {
+class TConn extends ConnBase {
   bool errorMode = false;
-  TPWConn(
+  TConn(
+    String id,
     Uri url,
     ConnState connState,
     this.errorMode,
-  ) : super(url, connState);
+  ) : super(id, url, connState);
 
   @override
   Future<Stream<List<int>>> startCore() async {
@@ -17,17 +18,15 @@ class TPWConn extends PWConnBase {
   }
 
   @override
-  TPWConn create(Uri url, ConnState connState) {
-    return TPWConn(url, connState, errorMode);
+  TConn create(Uri url, ConnState connState) {
+    return TConn(url, connState, errorMode);
   }
 
   Stream<List<int>> _getStream() async* {
     // In error mode, we only send a portion of the data.
-    // [connState] changes during transfer, cache its values first.
-    var start = connState.start;
-    var end = connState.end;
-
-    for (int i = start; i <= (errorMode ? start + 3 : end); i++) {
+    for (int i = initialState.start;
+        i <= (errorMode ? initialState.start + 3 : initialState.end);
+        i++) {
       yield [i + 1];
     }
   }
@@ -35,10 +34,12 @@ class TPWConn extends PWConnBase {
 
 class TParallelWorker extends ParallelWorker {
   final bool errorMode;
-  TParallelWorker({this.errorMode = false}) : super(concurrency: 4);
+  final bool partialDone;
+  TParallelWorker({this.errorMode = false, this.partialDone = false})
+      : super(concurrency: 4);
 
   static String get s =>
-      '0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728';
+      '0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b';
 
   @override
   Future<DataHead> connect(Uri url) async {
@@ -46,8 +47,8 @@ class TParallelWorker extends ParallelWorker {
   }
 
   @override
-  PWConnBase createPWConn(Uri url, ConnState connState) {
-    return TPWConn(url, connState, errorMode);
+  ConnBase createConn(Uri url, ConnState connState) {
+    return TConn(url, connState, errorMode);
   }
 
   @override

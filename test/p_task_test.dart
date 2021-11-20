@@ -9,7 +9,7 @@ void main() {
     var t = TaskWrapper(worker: TParallelWorker());
     await t.start();
     expect(t.initialState,
-        '{"url":"_url_","actual_url":"_url_","size":40,"transferred":0,"conn":[{"start":0,"end":9},{"start":10,"end":19},{"start":20,"end":29},{"start":30,"end":39}]}');
+        '{"url":"_url_","actual_url":"_url_","size":43,"transferred":0,"conn":[{"start":0,"end":10},{"start":11,"end":21},{"start":22,"end":32},{"start":33,"end":42}]}');
     expect(await t.readDestData(), TParallelWorker.s);
     expect(t.progressValues.every((e) => e > 0 && e <= 100), true);
     expect(t.status, TaskStatus.completed);
@@ -23,26 +23,26 @@ void main() {
       throw Exception();
     } catch (ex) {
       expect(await t.readStateString(),
-          '{"url":"_url_","actual_url":"_url_","size":40,"transferred":16,"conn":[{"start":4,"end":9},{"start":14,"end":19},{"start":24,"end":29},{"start":34,"end":39}]}');
+          '{"url":"_url_","actual_url":"_url_","size":43,"transferred":16,"conn":[{"start":4,"end":10},{"start":15,"end":21},{"start":26,"end":32},{"start":37,"end":42}]}');
       expect(t.state!.toJSON(),
-          '{"url":"_url_","actual_url":"_url_","size":40,"transferred":16,"conn":[{"start":4,"end":9},{"start":14,"end":19},{"start":24,"end":29},{"start":34,"end":39}]}');
+          '{"url":"_url_","actual_url":"_url_","size":43,"transferred":16,"conn":[{"start":4,"end":10},{"start":15,"end":21},{"start":26,"end":32},{"start":37,"end":42}]}');
       expect(t.progressValues, [
-        0.025,
+        0.02,
         0.05,
-        0.075,
-        0.1,
-        0.125,
-        0.15,
-        0.175,
-        0.2,
-        0.225,
-        0.25,
-        0.275,
+        0.07,
+        0.09,
+        0.12,
+        0.14,
+        0.16,
+        0.19,
+        0.21,
+        0.23,
+        0.26,
+        0.28,
         0.3,
-        0.325,
+        0.33,
         0.35,
-        0.375,
-        0.4
+        0.37
       ]);
       expect(t.status, TaskStatus.error);
       await t.close();
@@ -50,34 +50,37 @@ void main() {
       t = TaskWrapper(worker: TParallelWorker(), destFile: t.destFile);
       await t.start();
       expect(t.initialState,
-          '{"url":"_url_","actual_url":"_url_","size":40,"transferred":16,"conn":[{"start":4,"end":9},{"start":14,"end":19},{"start":24,"end":29},{"start":34,"end":39}]}');
+          '{"url":"_url_","actual_url":"_url_","size":43,"transferred":16,"conn":[{"start":4,"end":10},{"start":15,"end":21},{"start":26,"end":32},{"start":37,"end":42}]}');
       expect(t.initialPoz, 16);
       expect(await t.readDestData(), TParallelWorker.s);
       expect(t.progressValues, [
-        0.425,
-        0.45,
-        0.475,
-        0.5,
-        0.525,
-        0.55,
-        0.575,
+        0.4,
+        0.42,
+        0.44,
+        0.47,
+        0.49,
+        0.51,
+        0.53,
+        0.56,
+        0.58,
         0.6,
-        0.625,
+        0.63,
         0.65,
-        0.675,
+        0.67,
         0.7,
-        0.725,
-        0.75,
-        0.775,
-        0.8,
-        0.825,
-        0.85,
-        0.875,
-        0.9,
-        0.925,
+        0.72,
+        0.74,
+        0.77,
+        0.79,
+        0.81,
+        0.84,
+        0.86,
+        0.88,
+        0.91,
+        0.93,
         0.95,
-        0.975,
-        1.0
+        0.98,
+        1.0,
       ]);
       expect(t.status, TaskStatus.completed);
       await t.close();

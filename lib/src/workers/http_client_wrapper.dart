@@ -17,7 +17,7 @@ class HTTPClientWrapper {
   Future<http.StreamedResponse> get(Uri url, {DataRange? range}) async {
     var req = http.Request('GET', url);
     if (range != null) {
-      req.headers['Range'] = 'bytes=${range.position}-${range.size}';
+      req.headers['Range'] = 'bytes=${range.start}-${range.end}';
     }
     var resp = await _client.send(req);
     _throwOnErrorHTTPCode(resp.statusCode);

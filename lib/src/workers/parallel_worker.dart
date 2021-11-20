@@ -1,13 +1,16 @@
+import 'dart:math';
+
 import 'package:buxing/buxing.dart';
-import 'package:buxing/src/workers/pw_conn.dart';
+import 'package:buxing/src/workers/conn.dart';
 import 'package:meta/meta.dart';
 import 'package:async/async.dart';
 
 const defConnNumber = 5;
 
 class ParallelWorker extends Worker {
-  final List<PWConnBase> _conns = [];
+  final Map<String, ConnBase> _conns = {};
   late final int concurrency;
+  int _idCounter = 0;
 
   ParallelWorker({int concurrency = -1}) {
     this.concurrency = concurrency <= 0 ? defConnNumber : concurrency;
@@ -25,43 +28,59 @@ class ParallelWorker extends Worker {
   }
 
   @override
-  Future<Stream<DataBody>> start(Uri url, State state) async {
+  Future<Stream<DataBody>> start(State state) async {
     logger?.info('p_worker: Sending data request...');
     logger?.info('p_worker: Got ${state.conns.length} state conns...');
-    for (var i = 0; i < state.conns.length; i++) {
-      var stateConn = state.conns[i];
-      var pwConn = createPWConn(url, stateConn);
-      var connIdx = i;
-      pwConn.onStateChange = () => state.conns[connIdx] = pwConn.connState;
-      _conns.add(pwConn);
+
+    for (var connState in state.conns.values) {
+      var conn = spawnConn(state.head, connState);
+      conn.onStateChange = (s) async {
+        var id = conn.id;
+        if (s == null) {
+          await conn.close();
+          state.conns.remove(id);
+          _conns.remove(id);
+        } else {
+          state.conns[id] = s;
+        }
+      };
+      _conns[conn.id] = conn;
     }
-    var streams = await Future.wait(_conns.map((e) => e.start()));
+    var streams = await Future.wait(_conns.values.map((e) => e.start()));
     return StreamGroup.merge(streams);
   }
 
-  List<ConnState> _createConnStates(State state) {
-    var connSize = (state.head.size / concurrency).round();
+  Map<String, ConnState> _createConnStates(State state) {
+    var avgSize = (state.head.size / concurrency).round();
     ConnState? prevState;
     ConnState? curState;
-    List<ConnState> conns = [];
+    Map<String, ConnState> conns = {};
     for (var i = 0; i < concurrency; i++) {
-      curState = ConnState(prevState != null ? prevState.end + 1 : 0,
-          prevState != null ? prevState.end + connSize : connSize - 1);
-      conns.add(curState);
+      curState = ConnState(
+          nextConnID(),
+          prevState != null ? prevState.end + 1 : 0,
+          prevState != null ? prevState.end + avgSize : avgSize - 1);
+      conns[curState.id] = curState;
       prevState = curState;
     }
-    // Make sure last state covers all the remaining part.
-    conns[conns.length - 1] = ConnState(curState!.start, state.head.size - 1);
+    // Make sure last state covers the whole range.
+    conns[curState!.id] = ConnState(curState.id,
+        min(curState.start, state.head.size - 1), state.head.size - 1);
     return conns;
   }
 
   @protected
-  PWConnBase createPWConn(Uri url, ConnState connState) {
-    return PWConn(url, connState);
+  ConnBase spawnConn(StateHead head, ConnState connState) {
+    return Conn(head, connState);
   }
 
   @override
   Future<void> close() async {
-    await Future.wait(_conns.map((e) => e.close()));
+    await Future.wait(_conns.values.map((e) => e.close()));
+  }
+
+  @protected
+  String nextConnID() {
+    return '${++_idCounter}';
   }
 }

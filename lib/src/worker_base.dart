@@ -5,15 +5,15 @@ import 'package:buxing/src/logger.dart';
 
 abstract class WorkerBase {
   Logger? logger;
-  Future<DataHead> connect(Uri url);
+  Future<StateHead> connect(Uri url);
 
   /// Returns a new state if state needs to be updated before [start] is called.
   Future<State?> prepare(State state) {
     return Future(() => null);
   }
 
-  Future<Stream<DataBody>> start(Uri url, State state);
-  Future<bool> canResume(Uri url);
+  Future<Stream<DataBody>> start(State state);
+  Future<bool> canResume(StateHead head);
   Future<void> close() async {}
   Future<void> transferCompleted() async {}
 }

@@ -3,36 +3,53 @@ import 'dart:convert';
 import 'package:buxing/src/data.dart';
 
 const urlKey = 'url';
-const actualUrlKey = 'actual_url';
+const originalURLKey = 'original_url';
 const sizeKey = 'size';
 const transferredKey = 'transferred';
 const parallelKey = 'parallel';
 const startKey = 'start';
 const endKey = 'end';
 const connKey = 'conn';
+const idKey = 'id';
 
 class ConnState {
-  final int start;
-  final int end;
+  final String id;
+  final DataRange range;
+  int get start => range.start;
+  int get end => range.end;
 
-  ConnState(this.start, this.end);
+  ConnState(this.id, int start, int end) : range = DataRange(start, end);
 
   ConnState.fromJson(Map<String, dynamic> json)
-      : start = json[startKey] as int,
-        end = json[endKey] as int;
+      : id = json[idKey] as String,
+        range = DataRange(json[startKey] as int, json[endKey] as int);
 
   // ignore: implicit_dynamic_map_literal
   Map<String, dynamic> toJson() => {
-        startKey: start,
-        endKey: end,
+        startKey: range.start,
+        endKey: range.end,
+        idKey: id,
       };
 }
 
+class StateHead {
+  final Uri originalURL;
+  final Uri url;
+  final int size;
+
+  StateHead(this.originalURL, this.url, this.size);
+
+  @override
+  String toString() {
+    return '$size [$url]';
+  }
+}
+
 class State {
-  final DataHead head;
+  final StateHead head;
   int transferred = 0;
   bool parallel = false;
-  List<ConnState> conns = [];
+  Map<String, ConnState> conns = {};
 
   State(this.head);
 
@@ -40,7 +57,7 @@ class State {
     // ignore: implicit_dynamic_map_literal
     Map<String, dynamic> dict = {
       urlKey: head.url.toString(),
-      actualUrlKey: head.actualURL.toString(),
+      originalURLKey: head.originalURL.toString(),
       sizeKey: head.size,
       transferredKey: transferred,
     };
@@ -57,13 +74,15 @@ class State {
     // Any errors thrown here are expected and should be handled
     // as data corruption.
     var map = jsonDecode(json) as Map<String, dynamic>;
-    var state = State(DataHead(Uri.parse(map[urlKey] as String),
-        Uri.parse(map[actualUrlKey] as String), map[sizeKey] as int));
+    var state = State(StateHead(Uri.parse(map[originalURLKey] as String),
+        Uri.parse(map[urlKey] as String), map[sizeKey] as int));
     state.transferred = map[transferredKey] as int;
     state.parallel = (map[parallelKey] ?? false) as bool;
-    // ignore: implicit_dynamic_list_literal
-    for (var dict in (map[connKey] ?? []) as List<dynamic>) {
-      state.conns.add(ConnState.fromJson(dict as Map<String, dynamic>));
+    // ignore: implicit_dynamic_map_literal
+    var connsMap = (map[connKey] ?? {}) as Map<String, ConnState>;
+    for (var connDict in connsMap.values) {
+      var connState = ConnState.fromJson(connDict as Map<String, dynamic>);
+      state.conns[connState.id] = connState;
     }
     return state;
   }

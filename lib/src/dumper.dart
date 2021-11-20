@@ -94,7 +94,7 @@ class Dumper {
     await _dataRAF!.truncate(length);
   }
 
-  static Future<Dumper> create(String dest, DataHead head,
+  static Future<Dumper> create(String dest, StateHead head,
       [Logger? logger]) async {
     var state = State(head);
     var stateFile = getStateFile(dest);
@@ -112,7 +112,7 @@ class Dumper {
     return d;
   }
 
-  static Future<Dumper?> load(String dest, DataHead head,
+  static Future<Dumper?> load(String dest, StateHead head,
       [Logger? logger]) async {
     try {
       var stateFile = getStateFile(dest);
@@ -142,7 +142,7 @@ class Dumper {
     }
   }
 
-  static Future<Dumper> loadOrCreate(String dest, DataHead head,
+  static Future<Dumper> loadOrCreate(String dest, StateHead head,
       [Logger? logger]) async {
     var state = await load(dest, head, logger);
     if (state != null) {
