@@ -6,20 +6,14 @@ const pwNumConns = 4;
 class TConn extends ConnBase {
   bool errorMode = false;
   TConn(
-    String id,
-    Uri url,
+    StateHead head,
     ConnState connState,
     this.errorMode,
-  ) : super(id, url, connState);
+  ) : super(head, connState);
 
   @override
   Future<Stream<List<int>>> startCore() async {
     return _getStream();
-  }
-
-  @override
-  TConn create(Uri url, ConnState connState) {
-    return TConn(url, connState, errorMode);
   }
 
   Stream<List<int>> _getStream() async* {
@@ -42,17 +36,17 @@ class TParallelWorker extends ParallelWorker {
       '0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b';
 
   @override
-  Future<DataHead> connect(Uri url) async {
-    return Future(() => DataHead(url, url, pwSize));
+  Future<StateHead> connect(Uri url) async {
+    return Future(() => StateHead(url, url, pwSize));
   }
 
   @override
-  ConnBase createConn(Uri url, ConnState connState) {
-    return TConn(url, connState, errorMode);
+  ConnBase spawnConn(StateHead head, ConnState connState) {
+    return TConn(head, connState, errorMode);
   }
 
   @override
-  Future<bool> canResume(Uri url) {
+  Future<bool> canResume(StateHead head) {
     return Future.value(true);
   }
 

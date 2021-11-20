@@ -79,10 +79,12 @@ class State {
     state.transferred = map[transferredKey] as int;
     state.parallel = (map[parallelKey] ?? false) as bool;
     // ignore: implicit_dynamic_map_literal
-    var connsMap = (map[connKey] ?? {}) as Map<String, ConnState>;
-    for (var connDict in connsMap.values) {
-      var connState = ConnState.fromJson(connDict as Map<String, dynamic>);
-      state.conns[connState.id] = connState;
+    var connsMap = map[connKey] as Map<String, dynamic>?;
+    if (connsMap != null) {
+      for (var connDict in connsMap.values) {
+        var connState = ConnState.fromJson(connDict as Map<String, dynamic>);
+        state.conns[connState.id] = connState;
+      }
     }
     return state;
   }

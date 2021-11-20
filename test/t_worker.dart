@@ -13,15 +13,15 @@ class TWorker extends WorkerBase {
   static String get s => '0102030405060708090a';
 
   @override
-  Future<DataHead> connect(Uri url) async {
+  Future<StateHead> connect(Uri url) async {
     if (headError) {
       throw Exception('Intentional head exception');
     }
-    return Future(() => DataHead(url, url, size));
+    return Future(() => StateHead(url, url, size));
   }
 
   @override
-  Future<Stream<DataBody>> start(Uri url, State state) async {
+  Future<Stream<DataBody>> start(State state) async {
     if (state.transferred > 0) {
       startPoz = state.transferred;
     }
@@ -29,7 +29,7 @@ class TWorker extends WorkerBase {
   }
 
   @override
-  Future<bool> canResume(Uri url) async {
+  Future<bool> canResume(StateHead head) async {
     return Future.value(canResumeValue);
   }
 

@@ -9,7 +9,7 @@ void main() {
     var t = TaskWrapper();
     await t.start();
     expect(t.initialState,
-        '{"url":"_url_","actual_url":"_url_","size":10,"transferred":0}');
+        '{"url":"_url_","original_url":"_url_","size":10,"transferred":0}');
     expect(t.initialPoz, 0);
     expect(await t.readDestData(), TWorker.s);
     expect(t.progressValues, [0.2, 0.4, 0.6, 0.8, 1.0]);
@@ -21,7 +21,7 @@ void main() {
     var t = TaskWrapper(worker: TWorker()..size = -1);
     await t.start();
     expect(t.initialState,
-        '{"url":"_url_","actual_url":"_url_","size":-1,"transferred":0}');
+        '{"url":"_url_","original_url":"_url_","size":-1,"transferred":0}');
     expect(t.initialPoz, 0);
     expect(await t.readDestData(), TWorker.s);
     expect(t.progressValues, [-2.0, -4.0, -6.0, -8.0, -10.0]);
@@ -47,7 +47,7 @@ void main() {
           ..canResumeValue = false);
     await t.start();
     expect(t.initialState,
-        '{"url":"_url_","actual_url":"_url_","size":10,"transferred":0}');
+        '{"url":"_url_","original_url":"_url_","size":10,"transferred":0}');
     expect(t.initialPoz, 0);
     expect(await t.readDestData(), TWorker.s);
     expect(t.progressValues, [0.2, 0.4, 0.6, 0.8, 1.0]);
@@ -62,7 +62,7 @@ void main() {
           ..canResumeValue = false);
     await t.start();
     expect(t.initialState,
-        '{"url":"_url_","actual_url":"_url_","size":-1,"transferred":0}');
+        '{"url":"_url_","original_url":"_url_","size":-1,"transferred":0}');
     expect(t.initialPoz, 0);
     expect(await t.readDestData(), TWorker.s);
     expect(t.progressValues, [-2.0, -4.0, -6.0, -8.0, -10.0]);
@@ -92,9 +92,9 @@ void main() {
       throw Exception();
     } catch (ex) {
       expect(await t.readStateString(),
-          '{"url":"_url_","actual_url":"_url_","size":10,"transferred":6}');
+          '{"url":"_url_","original_url":"_url_","size":10,"transferred":6}');
       expect(t.state!.toJSON(),
-          '{"url":"_url_","actual_url":"_url_","size":10,"transferred":6}');
+          '{"url":"_url_","original_url":"_url_","size":10,"transferred":6}');
       expect(t.progressValues, [0.2, 0.4, 0.6]);
       expect(t.status, TaskStatus.error);
       await t.close();
@@ -102,7 +102,7 @@ void main() {
       t = TaskWrapper(worker: TWorker()..size = defSize);
       await t.start();
       expect(t.initialState,
-          '{"url":"_url_","actual_url":"_url_","size":10,"transferred":0}');
+          '{"url":"_url_","original_url":"_url_","size":10,"transferred":0}');
       expect(t.initialPoz, 0);
       expect(await t.readDestData(), TWorker.s);
       expect(t.progressValues, [0.2, 0.4, 0.6, 0.8, 1.0]);
@@ -121,9 +121,9 @@ void main() {
       throw Exception();
     } catch (ex) {
       expect(await t.readStateString(),
-          '{"url":"_url_","actual_url":"_url_","size":10,"transferred":6}');
+          '{"url":"_url_","original_url":"_url_","size":10,"transferred":6}');
       expect(t.state!.toJSON(),
-          '{"url":"_url_","actual_url":"_url_","size":10,"transferred":6}');
+          '{"url":"_url_","original_url":"_url_","size":10,"transferred":6}');
       expect(t.progressValues, [0.2, 0.4, 0.6]);
       expect(t.status, TaskStatus.error);
       await t.close();
@@ -131,7 +131,7 @@ void main() {
       t = TaskWrapper(worker: TWorker()..size = defSize, destFile: t.destFile);
       await t.start();
       expect(t.initialState,
-          '{"url":"_url_","actual_url":"_url_","size":10,"transferred":6}');
+          '{"url":"_url_","original_url":"_url_","size":10,"transferred":6}');
       expect(t.initialPoz, 6);
       expect(await t.readDestData(), TWorker.s);
       expect(t.progressValues, [0.7, 0.8, 0.9, 1.0]);
@@ -150,9 +150,9 @@ void main() {
       throw Exception();
     } catch (ex) {
       expect(await t.readStateString(),
-          '{"url":"_url_","actual_url":"_url_","size":-1,"transferred":6}');
+          '{"url":"_url_","original_url":"_url_","size":-1,"transferred":6}');
       expect(t.state!.toJSON(),
-          '{"url":"_url_","actual_url":"_url_","size":-1,"transferred":6}');
+          '{"url":"_url_","original_url":"_url_","size":-1,"transferred":6}');
       expect(t.progressValues, [-2.0, -4.0, -6.0]);
       expect(t.status, TaskStatus.error);
       await t.close();
@@ -160,7 +160,7 @@ void main() {
       t = TaskWrapper(worker: TWorker()..size = -1, destFile: t.destFile);
       await t.start();
       expect(t.initialState,
-          '{"url":"_url_","actual_url":"_url_","size":-1,"transferred":0}');
+          '{"url":"_url_","original_url":"_url_","size":-1,"transferred":0}');
       expect(t.initialPoz, 0);
       expect(await t.readDestData(), TWorker.s);
       expect(t.progressValues, [-2.0, -4.0, -6.0, -8.0, -10.0]);
@@ -180,9 +180,9 @@ void main() {
       throw Exception();
     } catch (ex) {
       expect(await t.readStateString(),
-          '{"url":"_url_","actual_url":"_url_","size":10,"transferred":6}');
+          '{"url":"_url_","original_url":"_url_","size":10,"transferred":6}');
       expect(t.state!.toJSON(),
-          '{"url":"_url_","actual_url":"_url_","size":10,"transferred":6}');
+          '{"url":"_url_","original_url":"_url_","size":10,"transferred":6}');
       expect(t.progressValues, [0.2, 0.4, 0.6]);
       expect(t.status, TaskStatus.error);
       await t.close();
@@ -194,7 +194,7 @@ void main() {
           destFile: t.destFile);
       await t.start();
       expect(t.initialState,
-          '{"url":"_url_","actual_url":"_url_","size":10,"transferred":0}');
+          '{"url":"_url_","original_url":"_url_","size":10,"transferred":0}');
       expect(t.initialPoz, 0);
       expect(await t.readDestData(), TWorker.s);
       expect(t.progressValues, [0.2, 0.4, 0.6, 0.8, 1.0]);
@@ -214,9 +214,9 @@ void main() {
       throw Exception();
     } catch (ex) {
       expect(await t.readStateString(),
-          '{"url":"_url_","actual_url":"_url_","size":-1,"transferred":6}');
+          '{"url":"_url_","original_url":"_url_","size":-1,"transferred":6}');
       expect(t.state!.toJSON(),
-          '{"url":"_url_","actual_url":"_url_","size":-1,"transferred":6}');
+          '{"url":"_url_","original_url":"_url_","size":-1,"transferred":6}');
       expect(t.progressValues, [-2.0, -4.0, -6.0]);
       expect(t.status, TaskStatus.error);
       await t.close();
@@ -228,7 +228,7 @@ void main() {
           destFile: t.destFile);
       await t.start();
       expect(t.initialState,
-          '{"url":"_url_","actual_url":"_url_","size":-1,"transferred":0}');
+          '{"url":"_url_","original_url":"_url_","size":-1,"transferred":0}');
       expect(t.initialPoz, 0);
       expect(await t.readDestData(), TWorker.s);
       expect(t.progressValues, [-2.0, -4.0, -6.0, -8.0, -10.0]);

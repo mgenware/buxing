@@ -12,7 +12,7 @@ const stateExt = '.bxdownstate';
 
 Future<Dumper> newDumper({int size = defSize}) async {
   var file = newFile();
-  var head = DataHead(defURL, defURL, size);
+  var head = StateHead(defURL, defURL, size);
   var d = await Dumper.create(file, head);
   if (size > 0) {
     // Set position to start of the file.
@@ -101,11 +101,11 @@ void main() {
     // Create a new dumper with the same name.
     const newSize = 7;
     var newURL = Uri.parse('https://__new_url__');
-    var head = DataHead(newURL, newURL, newSize);
+    var head = StateHead(newURL, newURL, newSize);
     d = await Dumper.create(d.path, head);
     expect(await d.readDataString(), '00000000000000');
     expect(await d.readStateString(),
-        '{"url":"https://__new_url__","actual_url":"https://__new_url__","size":7,"transferred":0}');
+        '{"url":"https://__new_url__","original_url":"https://__new_url__","size":7,"transferred":0}');
   });
 
   test('Load', () async {
@@ -118,10 +118,10 @@ void main() {
     var nd = await Dumper.load(d.path, d.currentState.head);
     expect(await nd!.readDataString(), '01020304000000000000');
     expect(await nd.readStateString(),
-        '{"url":"_url_","actual_url":"_url_","size":10,"transferred":0}');
+        '{"url":"_url_","original_url":"_url_","size":10,"transferred":0}');
 
     // Load dumper with a different state.
-    var head = DataHead(defURL, defURL, 7);
+    var head = StateHead(defURL, defURL, 7);
     nd = await Dumper.load(d.path, head);
     expect(nd, null);
   });
@@ -136,14 +136,14 @@ void main() {
     var nd = await Dumper.loadOrCreate(d.path, d.currentState.head);
     expect(await nd.readDataString(), '01020304000000000000');
     expect(await nd.readStateString(),
-        '{"url":"_url_","actual_url":"_url_","size":10,"transferred":0}');
+        '{"url":"_url_","original_url":"_url_","size":10,"transferred":0}');
 
     // Load dumper with a different state.
-    var head = DataHead(defURL, defURL, 7);
+    var head = StateHead(defURL, defURL, 7);
     nd = await Dumper.loadOrCreate(d.path, head);
     expect(await nd.readDataString(), '00000000000000');
     expect(await nd.readStateString(),
-        '{"url":"_url_","actual_url":"_url_","size":7,"transferred":0}');
+        '{"url":"_url_","original_url":"_url_","size":7,"transferred":0}');
   });
 
   test('Truncate', () async {

@@ -3,7 +3,7 @@ import 'package:buxing/src/logger.dart';
 
 void main() async {
   var task = Task(
-      Uri.parse('https://golang.org/dl/go1.17.3.src.tar.gz'), 'a.zip',
-      worker: ParallelWorker(), logger: Logger(level: LogLevel.info));
+      Uri.parse('https://coldfunction.com/dds/ua/103/50_nNZqOS.png'), 'a.png',
+      logger: Logger());
   await task.start();
 }
