@@ -5,13 +5,13 @@ import 'package:buxing/buxing.dart';
 import 'package:buffered_list_stream/buffered_list_stream.dart';
 import 'http_client_wrapper.dart';
 
+/// The default worker implementation.
 class Worker extends WorkerBase {
   /// Internal buffer size.
   final int bufferSize;
 
   final HTTPClientWrapper _conn = HTTPClientWrapper();
 
-  /// Creates a new [Worker] instance.
   Worker({this.bufferSize = 200000});
 
   @override

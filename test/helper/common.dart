@@ -56,7 +56,7 @@ class TaskWrapper {
     };
     task.onProgress = (info) {
       progressValues
-          .add(_roundDouble(info.downloaded.toDouble() / info.total, 2));
+          .add(_roundDouble(info.transferred.toDouble() / info.total, 2));
     };
   }
 

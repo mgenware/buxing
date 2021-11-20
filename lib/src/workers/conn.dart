@@ -1,6 +1,7 @@
 import 'package:buxing/buxing.dart';
 import 'package:buxing/src/workers/http_client_wrapper.dart';
 
+/// The default [ConnBase] implementation.
 class Conn extends ConnBase {
   final HTTPClientWrapper _conn = HTTPClientWrapper();
 

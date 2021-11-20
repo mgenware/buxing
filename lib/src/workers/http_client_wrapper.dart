@@ -2,18 +2,21 @@ import 'package:buxing/src/data.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
 
+/// Valid HTTP status code for a RANGE request.
 const rangeStatus = 206;
 
-/// A wrapper around [RetryClient]
+/// A wrapper around [RetryClient].
 class HTTPClientWrapper {
   final RetryClient _client = RetryClient(http.Client());
 
+  /// Sends a HEAD request.
   Future<http.Response> head(Uri url, {Map<String, String>? headers}) async {
     var resp = await _client.head(url, headers: headers);
     _throwOnErrorHTTPCode(resp.statusCode);
     return resp;
   }
 
+  /// Sends a GET request.
   Future<http.StreamedResponse> get(Uri url, {DataRange? range}) async {
     var req = http.Request('GET', url);
     if (range != null) {
@@ -28,6 +31,7 @@ class HTTPClientWrapper {
     return resp;
   }
 
+  /// Sends a HEAD request with a RANGE header.
   Future<bool> canResume(Uri url) async {
     var resp = await head(url, headers: {'Range': 'bytes=0-'});
     return resp.statusCode == rangeStatus;
@@ -39,6 +43,7 @@ class HTTPClientWrapper {
     }
   }
 
+  /// Closes the internal HTTP client.
   void close() {
     _client.close();
   }

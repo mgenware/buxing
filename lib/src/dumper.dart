@@ -4,7 +4,10 @@ import 'dart:typed_data';
 import 'package:buxing/buxing.dart';
 import 'package:buxing/src/logger.dart';
 
+/// File extension of a partially downloaded file.
 const dataExt = '.bxdown';
+
+/// File extension of a task file.
 const stateExt = '.bxdownstate';
 
 File getDataFile(String path) {
@@ -17,12 +20,18 @@ File getStateFile(String path) {
 
 /// Dumper writes data to a disk file.
 class Dumper {
+  /// Path of the destination file.
   final String path;
 
+  /// File object of the destination file.
   final File dataFile;
+
+  /// File object of the task file.
   final File stateFile;
 
+  // Logger of this dumper.
   Logger? logger;
+
   RandomAccessFile? _dataRAF;
   State _currentState;
   bool _closed = false;
@@ -43,12 +52,6 @@ class Dumper {
 
   Dumper._(this.path, this._currentState, this.dataFile, this.stateFile,
       this.logger);
-
-  Future<void> _prepare() async {
-    var raf = await dataFile.open(mode: FileMode.append);
-    _poz = await raf.length();
-    _dataRAF = raf;
-  }
 
   Future<void> complete() async {
     logger?.info('dumper: Completing');
@@ -71,10 +74,12 @@ class Dumper {
     _closed = true;
   }
 
+  /// Writes the specified data to disk.
   Future<void> writeData(List<int> data) async {
     await _dataRAF!.writeFrom(data);
   }
 
+  /// Sets the internal file position.
   Future<void> seek(int poz) async {
     if (currentState.head.size >= 0 && poz >= currentState.head.size) {
       throw Exception(
@@ -84,16 +89,25 @@ class Dumper {
     await _dataRAF!.setPosition(poz);
   }
 
+  /// Saves the state to disk.
   Future<void> writeState(State state) async {
     _currentState = state;
     await stateFile.writeAsString(state.toJSON());
   }
 
+  /// Truncates the internal file to the given length.
   Future<void> truncate(int length) async {
     logger?.info('dumper: Truncate data to $length');
     await _dataRAF!.truncate(length);
   }
 
+  Future<void> _prepare() async {
+    var raf = await dataFile.open(mode: FileMode.append);
+    _poz = await raf.length();
+    _dataRAF = raf;
+  }
+
+  /// Creates a dumper and overwrites the existing one.
   static Future<Dumper> create(String dest, StateHead head,
       [Logger? logger]) async {
     var state = State(head);
@@ -112,6 +126,7 @@ class Dumper {
     return d;
   }
 
+  /// Loads a dumper from the given path.
   static Future<Dumper?> load(String dest, StateHead head,
       [Logger? logger]) async {
     try {
@@ -142,6 +157,7 @@ class Dumper {
     }
   }
 
+  /// Loads a dumper at the given path or creates one if the give path doesn't exist.
   static Future<Dumper> loadOrCreate(String dest, StateHead head,
       [Logger? logger]) async {
     var state = await load(dest, head, logger);

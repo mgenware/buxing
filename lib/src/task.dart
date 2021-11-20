@@ -1,36 +1,56 @@
 import 'package:buxing/buxing.dart';
 import 'package:buxing/src/logger.dart';
 
+/// Represents a progress update of a task.
 class TaskProgress {
-  final int downloaded;
+  final int transferred;
   final int total;
-  TaskProgress(this.downloaded, this.total);
+  TaskProgress(this.transferred, this.total);
 }
 
+/// The state of a task.
 enum TaskStatus { unstarted, working, completed, error }
 
+/// Represents a download operation.
 class Task {
+  /// The original URL passed in constructor.
   final Uri originalURL;
+
+  /// The destination file.
   final String destFile;
+
+  /// Logger of this task.
   late final Logger? logger;
+
+  /// Called when a progress update is available.
   Function(TaskProgress)? onProgress;
+
+  /// Called when the download is about to start.
   Function(State, int)? onBeforeDownload;
+
+  /// Gets the status of this task.
   TaskStatus get status => _status;
 
+  /// The worker of this task, can be a [Worker] or [ParallelWorker].
   late final WorkerBase _worker;
+
+  /// Gets the state file path.
+  String? get stateFile => _dumper?.stateFile.path;
+
+  /// Gets the current state information.
+  State? get state => _dumper?.currentState;
+
   Dumper? _dumper;
   TaskStatus _status = TaskStatus.unstarted;
   bool _workerClosed = false;
   bool _closed = false;
-
-  String? get stateFile => _dumper?.stateFile.path;
-  State? get state => _dumper?.currentState;
 
   Task(this.originalURL, this.destFile, {WorkerBase? worker, this.logger}) {
     _worker = worker ?? Worker();
     _worker.logger = logger;
   }
 
+  /// Starts downloading.
   Future<void> start() async {
     try {
       _setStatus(TaskStatus.working);

@@ -7,13 +7,14 @@ import 'package:async/async.dart';
 
 const defConnNumber = 5;
 
+/// The default parallel worker implementation.
 class ParallelWorker extends Worker {
-  final Map<String, ConnBase> _conns = {};
+  /// Gets or sets the number of concurrent connections.
   late final int concurrency;
 
   int _idCounter = 0;
+  final Map<String, ConnBase> _conns = {};
 
-  /// Creates a new [ParallelWorker] instance.
   ParallelWorker({int concurrency = -1, int bufferSize = 50000})
       : super(bufferSize: bufferSize) {
     this.concurrency = concurrency <= 0 ? defConnNumber : concurrency;
