@@ -1,8 +1,8 @@
 import 'package:buxing/buxing.dart';
 import 'package:test/test.dart';
 
-import 'common.dart';
-import 't_parallel_worker.dart';
+import 'helper/common.dart';
+import 'helper/t_parallel_worker.dart';
 
 void main() {
   test('Completed successfully with progress', () async {

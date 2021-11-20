@@ -5,7 +5,7 @@ import 'package:convert/convert.dart';
 import 'package:buxing/buxing.dart';
 import 'package:test/test.dart';
 
-import 'common.dart';
+import 'helper/common.dart';
 
 const dataExt = '.bxdown';
 const stateExt = '.bxdownstate';

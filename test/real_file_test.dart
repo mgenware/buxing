@@ -1,7 +1,7 @@
 import 'package:buxing/buxing.dart';
 import 'package:test/test.dart';
 
-import 'common.dart';
+import 'helper/common.dart';
 
 void main() {
   test('Completed successfully (real file)', () async {
