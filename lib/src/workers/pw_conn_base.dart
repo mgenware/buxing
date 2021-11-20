@@ -1,26 +1,15 @@
-import 'package:buxing/src/data.dart';
+import 'package:buxing/buxing.dart';
 import 'package:meta/meta.dart';
 
 /// Base class for a parallel worker connection.
 abstract class PWConnBase {
   final Uri url;
-  int _position;
+  ConnState _connState;
+  Function()? onStateChange;
 
-  // Size can be halved if the connection spawns another connection.
-  int _size;
+  ConnState get connState => _connState;
 
-  @protected
-  int _downloaded = 0;
-
-  int get size => _size;
-  int get position => _position;
-  int get downloaded => _downloaded;
-
-  Function()? onTransfer;
-
-  PWConnBase(this.url, int position, int size)
-      : _size = size,
-        _position = position;
+  PWConnBase(this.url, this._connState);
 
   Future<Stream<DataBody>> start() async {
     var stream = await startCore();
@@ -28,24 +17,16 @@ abstract class PWConnBase {
   }
 
   DataBody _createDataBody(List<int> bytes) {
-    var body = DataBody(bytes, position: _position);
-    _position += bytes.length;
-    _downloaded += bytes.length;
-    onTransfer?.call();
+    var body = DataBody(bytes, position: connState.start);
+    var newConnState = ConnState(connState.start + bytes.length, connState.end);
+    _connState = newConnState;
+    onStateChange?.call();
     return body;
   }
 
   @protected
   Future<Stream<List<int>>> startCore();
 
-  PWConnBase create(Uri url, int position, int size);
-  PWConnBase spawn() {
-    var leftSize = (size / 2).round();
-    var rightSize = size - leftSize;
-    var newConn = create(url, _position + leftSize, rightSize);
-    _size = leftSize;
-    return newConn;
-  }
-
+  PWConnBase create(Uri url, ConnState connState);
   Future<void> close() async {}
 }

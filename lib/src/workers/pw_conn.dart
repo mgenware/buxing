@@ -1,10 +1,10 @@
+import 'package:buxing/buxing.dart';
 import 'package:buxing/src/workers/http_client_wrapper.dart';
-import 'package:buxing/src/workers/pw_conn_base.dart';
 
 class PWConn extends PWConnBase {
   final HTTPClientWrapper _conn = HTTPClientWrapper();
 
-  PWConn(Uri url, int position, int size) : super(url, position, size);
+  PWConn(Uri url, ConnState connState) : super(url, connState);
 
   @override
   Future<void> close() async {
@@ -13,12 +13,13 @@ class PWConn extends PWConnBase {
 
   @override
   Future<Stream<List<int>>> startCore() async {
-    var resp = await _conn.get(url);
+    var resp = await _conn.get(url,
+        range: DataRange(connState.start, connState.end - connState.start + 1));
     return resp.stream;
   }
 
   @override
-  PWConn create(Uri url, int position, int size) {
-    return PWConn(url, position, size);
+  PWConn create(Uri url, ConnState connState) {
+    return PWConn(url, connState);
   }
 }

@@ -7,26 +7,24 @@ const actualUrlKey = 'actual_url';
 const sizeKey = 'size';
 const transferredKey = 'transferred';
 const parallelKey = 'parallel';
-const positionKey = 'position';
+const startKey = 'start';
+const endKey = 'end';
 const connKey = 'conn';
 
 class ConnState {
-  int position;
-  int transferred;
-  int size;
+  final int start;
+  final int end;
 
-  ConnState(this.position, this.transferred, this.size);
+  ConnState(this.start, this.end);
 
   ConnState.fromJson(Map<String, dynamic> json)
-      : position = json[positionKey] as int,
-        transferred = json[transferredKey] as int,
-        size = json[sizeKey] as int;
+      : start = json[startKey] as int,
+        end = json[endKey] as int;
 
   // ignore: implicit_dynamic_map_literal
   Map<String, dynamic> toJson() => {
-        positionKey: position,
-        transferredKey: transferred,
-        sizeKey: size,
+        startKey: start,
+        endKey: end,
       };
 }
 

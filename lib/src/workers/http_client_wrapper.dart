@@ -2,13 +2,15 @@ import 'package:buxing/src/data.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
 
+const rangeStatus = 206;
+
 /// A wrapper around [RetryClient]
 class HTTPClientWrapper {
   final RetryClient _client = RetryClient(http.Client());
 
   Future<http.Response> head(Uri url, {Map<String, String>? headers}) async {
     var resp = await _client.head(url, headers: headers);
-    _throwOnErrorHTTPCode(resp);
+    _throwOnErrorHTTPCode(resp.statusCode);
     return resp;
   }
 
@@ -17,18 +19,23 @@ class HTTPClientWrapper {
     if (range != null) {
       req.headers['Range'] = 'bytes=${range.position}-${range.size}';
     }
-    return _client.send(req);
+    var resp = await _client.send(req);
+    _throwOnErrorHTTPCode(resp.statusCode);
+    if (range != null && resp.statusCode != rangeStatus) {
+      throw Exception(
+          'Got invalid status ${resp.statusCode} from range request');
+    }
+    return resp;
   }
 
   Future<bool> canResume(Uri url) async {
     var resp = await head(url, headers: {'Range': 'bytes=0-'});
-    return resp.statusCode == 206;
+    return resp.statusCode == rangeStatus;
   }
 
-  void _throwOnErrorHTTPCode(http.Response resp) {
-    var code = resp.statusCode;
+  void _throwOnErrorHTTPCode(int code) {
     if (code < 200 || code > 299) {
-      throw Exception('Request failed with HTTP code ${resp.statusCode}');
+      throw Exception('Request failed with HTTP code $code');
     }
   }
 
