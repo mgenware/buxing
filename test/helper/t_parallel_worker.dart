@@ -2,6 +2,7 @@ import 'package:buxing/buxing.dart';
 
 const pwSize = 43;
 const pwNumConns = 4;
+const pwBufferSize = 6;
 
 class TConn extends ConnBase {
   // In full pause mode, all connections are paused.
@@ -12,7 +13,7 @@ class TConn extends ConnBase {
 
   TConn(StateHead head, ConnState connState,
       {this.fullPause = false, this.partialPause = false})
-      : super(head, connState);
+      : super(head, connState, pwBufferSize);
 
   @override
   Future<Stream<List<int>>> startCore() async {

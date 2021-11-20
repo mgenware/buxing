@@ -10,9 +10,12 @@ const defConnNumber = 5;
 class ParallelWorker extends Worker {
   final Map<String, ConnBase> _conns = {};
   late final int concurrency;
+
   int _idCounter = 0;
 
-  ParallelWorker({int concurrency = -1}) {
+  /// Creates a new [ParallelWorker] instance.
+  ParallelWorker({int concurrency = -1, int bufferSize = 50000})
+      : super(bufferSize: bufferSize) {
     this.concurrency = concurrency <= 0 ? defConnNumber : concurrency;
   }
 
@@ -71,7 +74,7 @@ class ParallelWorker extends Worker {
 
   @protected
   ConnBase spawnConn(StateHead head, ConnState connState) {
-    return Conn(head, connState);
+    return Conn(head, connState, bufferSize);
   }
 
   @override

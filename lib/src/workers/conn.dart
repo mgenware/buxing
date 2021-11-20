@@ -4,7 +4,8 @@ import 'package:buxing/src/workers/http_client_wrapper.dart';
 class Conn extends ConnBase {
   final HTTPClientWrapper _conn = HTTPClientWrapper();
 
-  Conn(StateHead head, ConnState connState) : super(head, connState);
+  Conn(StateHead head, ConnState connState, int bufferSize)
+      : super(head, connState, bufferSize);
 
   @override
   Future<void> close() async {

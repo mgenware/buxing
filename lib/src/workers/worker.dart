@@ -2,10 +2,17 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 
 import 'package:buxing/buxing.dart';
+import 'package:buffered_list_stream/buffered_list_stream.dart';
 import 'http_client_wrapper.dart';
 
 class Worker extends WorkerBase {
+  /// Internal buffer size.
+  final int bufferSize;
+
   final HTTPClientWrapper _conn = HTTPClientWrapper();
+
+  /// Creates a new [Worker] instance.
+  Worker({this.bufferSize = 200000});
 
   @override
   Future<StateHead> connect(Uri url) async {
@@ -26,7 +33,8 @@ class Worker extends WorkerBase {
         ? DataRange(state.transferred, state.head.size - 1)
         : null;
     var resp = await _conn.get(state.head.url, range: range);
-    return resp.stream.map((event) => DataBody(event));
+    var bufferedStream = bufferedListStream(resp.stream, bufferSize);
+    return bufferedStream.map((s) => DataBody(s));
   }
 
   @override
