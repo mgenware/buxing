@@ -1,6 +1,6 @@
 name: buxing
-description: A starting point for Dart libraries or applications.
-version: 1.0.0
+description: A file downloader. Supports resumable downloads, multiple connections, buffering, auto-retry, etc.
+version: 0.1.0
 homepage: https://github.com/mgenware/buxing
 
 environment:
@@ -11,7 +11,6 @@ dev_dependencies:
   uuid: ^3.0.5
   convert: ^3.0.1
   mgenware_dart_lints: ^1.0.0
-  mock_byte_stream: ^1.1.0
 dependencies:
   http: ^0.13.4
   meta: ^1.7.0
