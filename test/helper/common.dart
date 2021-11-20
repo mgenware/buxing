@@ -45,7 +45,11 @@ class TaskWrapper {
       tWorker.size = defSize;
       worker = tWorker;
     }
-    task = Task(defURL, destFile ?? newFile(), worker: worker);
+    task = Task(
+      defURL,
+      destFile ?? newFile(),
+      worker: worker,
+    );
     task.onBeforeDownload = (state, poz) {
       initialState = state.toJSON();
       initialPoz = poz;
