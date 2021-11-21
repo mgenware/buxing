@@ -1,14 +1,14 @@
 [![pub package](https://img.shields.io/pub/v/buxing.svg)](https://pub.dev/packages/buxing)
 [![Build Status](https://github.com/mgenware/buxing/workflows/Build/badge.svg)](https://github.com/mgenware/buxing/actions)
 
-A file downloader. Supports resumable downloads, multiple connections, buffering, auto-retry, etc.
+An HTTP file downloader packed with many features -> resumable downloads, multiple connections, buffering, auto-retry, etc.
 
 ## Features
 
 - Resumable downloads.
 - Supports multiple connections.
 - Auto buffering for less disk writes.
-- Auto connection retry via the builtin `RetryClient`.
+- Auto HTTP connection retry via the builtin `RetryClient`.
 
 ## Usage
 

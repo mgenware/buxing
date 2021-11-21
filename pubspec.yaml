@@ -1,6 +1,6 @@
 name: buxing
-description: A file downloader. Supports resumable downloads, multiple connections, buffering, auto-retry, etc.
-version: 0.1.1
+description: An HTTP file downloader packed with many features -> resumable downloads, multiple connections, buffering, auto-retry, etc.
+version: 0.1.2
 homepage: https://github.com/mgenware/buxing
 
 environment:
