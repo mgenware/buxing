@@ -50,7 +50,7 @@ class Task {
     _worker.logger = logger;
   }
 
-  /// Starts downloading.
+  /// Starts or resumes downloading.
   Future<void> start() async {
     try {
       _setStatus(TaskStatus.working);

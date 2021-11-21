@@ -10,10 +10,6 @@ A file downloader. Supports resumable downloads, multiple connections, buffering
 - Auto buffering for less disk writes.
 - Auto connection retry via the builtin `RetryClient`.
 
-## TODO
-
-- HTTP redirection support.
-
 ## Usage
 
 Install and import this package:
@@ -32,7 +28,7 @@ void main() async {
 }
 ```
 
-### Report progress
+### Progress reporting
 
 Progress events are raised through `Task.onProgress`:
 
@@ -70,4 +66,20 @@ var task = Task(Uri.parse('URL'), 'FILE',
 // Multi-connection task.
 var task = Task(Uri.parse('URL'), 'FILE',
     worker: ParallelWorker(bufferSize: 100000)); // 100 KB
+```
+
+### Logging
+
+To enable logging, set the `logger` field:
+
+```dart
+var task = Task(Uri.parse('https://golang.org/dl/go1.17.3.src.tar.gz'),
+    'downloads/go1.17.3.src.tar.gz',
+    logger: Logger(level: LogLevel.info));
+```
+
+Log levels:
+
+```dart
+enum LogLevel { verbose, info, warning, error }
 ```
