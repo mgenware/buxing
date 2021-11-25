@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:buxing/buxing.dart';
-import 'package:buxing/src/logger.dart';
 
 /// File extension of a partially downloaded file.
 const dataExt = '.bxdown';

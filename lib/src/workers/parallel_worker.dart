@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:buxing/buxing.dart';
-import 'package:buxing/src/workers/conn.dart';
 import 'package:meta/meta.dart';
 import 'package:async/async.dart';
 

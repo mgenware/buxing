@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:buxing/buxing.dart';
-import 'package:buxing/src/logger.dart';
 
 /// Base class for all workers.
 abstract class WorkerBase {

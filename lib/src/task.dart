@@ -1,5 +1,4 @@
 import 'package:buxing/buxing.dart';
-import 'package:buxing/src/logger.dart';
 
 /// Represents a progress update of a task.
 class TaskProgress {
