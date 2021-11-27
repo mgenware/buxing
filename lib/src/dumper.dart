@@ -9,10 +9,12 @@ const dataExt = '.bxdown';
 /// File extension of a task file.
 const stateExt = '.bxdownstate';
 
+/// Gets the download data file path.
 File getDataFile(String path) {
   return File(path + dataExt);
 }
 
+/// Gets the state file path.
 File getStateFile(String path) {
   return File(path + stateExt);
 }
@@ -138,7 +140,7 @@ class Dumper {
           throw Exception('Online state has changed');
         }
 
-        // Make sure data file size is less than state filesize.
+        // Make sure data file size is less than state file size.
         var fileSize = await dataFile.length();
         if (head.size >= 0 && fileSize > head.size) {
           throw Exception(
@@ -150,13 +152,13 @@ class Dumper {
       }
       return null;
     } catch (e) {
-      // Corrupted state file, returning null.
+      // Corrupted state file, return null.
       logger?.error('dumper: Error loading state "$e"');
       return null;
     }
   }
 
-  /// Loads a dumper at the given path or creates one if the give path doesn't exist.
+  /// Loads a dumper at the given path or creates one if it doesn't exist.
   static Future<Dumper> loadOrCreate(String dest, StateHead head,
       [Logger? logger]) async {
     var state = await load(dest, head, logger);
