@@ -10,7 +10,7 @@ dev_dependencies:
   test: ^1.16.0
   uuid: ^3.0.5
   convert: ^3.0.1
-  mgenware_dart_lints: ^1.0.0
+  lints: ^2.0.0
   path: ^1.8.0
   crypto: ^3.0.1
 dependencies:
