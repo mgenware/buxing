@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:io';
 
 import 'package:buxing/buxing.dart';
 import 'package:meta/meta.dart';
@@ -16,7 +17,9 @@ class ParallelWorker extends Worker {
 
   ParallelWorker({int concurrency = -1, int bufferSize = 50000})
       : super(bufferSize: bufferSize) {
-    this.concurrency = concurrency <= 0 ? defConnNumber : concurrency;
+    this.concurrency = concurrency < 1
+        ? min(Platform.numberOfProcessors, defConnNumber)
+        : concurrency;
   }
 
   @override
