@@ -13,6 +13,7 @@ dev_dependencies:
   lints: ^2.0.0
   path: ^1.8.0
   crypto: ^3.0.1
+  mgenware_dart_lints: ^2.1.0
 dependencies:
   http: ^0.13.4
   meta: ^1.7.0

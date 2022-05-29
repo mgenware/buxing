@@ -12,7 +12,7 @@ abstract class WorkerBase {
 
   /// Returns a new state if state needs to be updated before [start] is called.
   Future<State?> prepare(State state) {
-    return Future.value(null);
+    return Future.value();
   }
 
   /// Starts data transfer.
