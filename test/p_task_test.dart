@@ -36,7 +36,7 @@ void main() {
           '{"url":"_url_","original_url":"_url_","size":43,"transferred":16,"conn":{"1":{"start":4,"end":10,"id":"1"},"2":{"start":15,"end":21,"id":"2"},"3":{"start":26,"end":32,"id":"3"},"4":{"start":37,"end":42,"id":"4"}}}');
       expect(t.initialPoz, 16);
       expect(await t.readDestData(), TParallelWorker.s);
-      expect(t.progressValues, [0.51, 0.53, 0.67, 0.7, 0.84, 0.86, 1.0]);
+      expect(t.progressValues, [0.51, 0.65, 0.67, 0.7, 0.84, 0.98, 1.0]);
       expect(t.status, TaskStatus.completed);
       await t.close();
     }
@@ -52,7 +52,7 @@ void main() {
           '{"url":"_url_","original_url":"_url_","size":43,"transferred":30,"conn":{"2":{"start":15,"end":21,"id":"2"},"4":{"start":37,"end":42,"id":"4"}}}');
       expect(t.state!.toJSON(),
           '{"url":"_url_","original_url":"_url_","size":43,"transferred":30,"conn":{"2":{"start":15,"end":21,"id":"2"},"4":{"start":37,"end":42,"id":"4"}}}');
-      expect(t.progressValues, [0.09, 0.23, 0.35, 0.49, 0.58, 0.7]);
+      expect(t.progressValues, [0.09, 0.23, 0.37, 0.49, 0.6, 0.7]);
       expect(t.status, TaskStatus.error);
       await t.close();
 
@@ -62,7 +62,7 @@ void main() {
           '{"url":"_url_","original_url":"_url_","size":43,"transferred":30,"conn":{"2":{"start":15,"end":21,"id":"2"},"4":{"start":37,"end":42,"id":"4"}}}');
       expect(t.initialPoz, 30);
       expect(await t.readDestData(), TParallelWorker.s);
-      expect(t.progressValues, [0.84, 0.86, 1.0]);
+      expect(t.progressValues, [0.84, 0.98, 1.0]);
       expect(t.status, TaskStatus.completed);
       await t.close();
     }
