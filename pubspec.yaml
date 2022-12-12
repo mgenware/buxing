@@ -19,4 +19,4 @@ dependencies:
   meta: ^1.7.0
   async: ^2.8.2
   ansicolor: ^2.0.1
-  buffered_list_stream: ^1.0.0
+  buffered_list_stream: ^1.3.0
