@@ -22,7 +22,7 @@ String newFile() {
 }
 
 Future<void> verifyRealFile(String file) async {
-  var hash = sha256.convert(await File(file).readAsBytes()).toString();
+  final hash = sha256.convert(await File(file).readAsBytes()).toString();
   if (hash != realURLChecksum) {
     throw Exception('Hash mismatched on downloaded file');
   }
@@ -41,7 +41,7 @@ class TaskWrapper {
 
   TaskWrapper({WorkerBase? worker, String? destFile}) {
     if (worker == null) {
-      var tWorker = TWorker();
+      final tWorker = TWorker();
       tWorker.size = defSize;
       worker = tWorker;
     }
@@ -65,7 +65,7 @@ class TaskWrapper {
   }
 
   Future<String> readDestData() async {
-    var bytes = await File(task.destFile).readAsBytes();
+    final bytes = await File(task.destFile).readAsBytes();
     return hex.encode(bytes);
   }
 
@@ -82,7 +82,7 @@ class TaskWrapper {
   }
 
   double _roundDouble(double val, int places) {
-    num mod = pow(10.0, places);
+    final num mod = pow(10.0, places);
     return (val * mod).round().toDouble() / mod;
   }
 }

@@ -1,4 +1,4 @@
-import 'package:buxing/src/data.dart';
+import '../data.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
 
@@ -11,18 +11,18 @@ class HTTPClientWrapper {
 
   /// Sends a HEAD request.
   Future<http.Response> head(Uri url, {Map<String, String>? headers}) async {
-    var resp = await _client.head(url, headers: headers);
+    final resp = await _client.head(url, headers: headers);
     _throwOnErrorHTTPCode(resp.statusCode);
     return resp;
   }
 
   /// Sends a GET request.
   Future<http.StreamedResponse> get(Uri url, {DataRange? range}) async {
-    var req = http.Request('GET', url);
+    final req = http.Request('GET', url);
     if (range != null) {
       req.headers['Range'] = 'bytes=${range.start}-${range.end}';
     }
-    var resp = await _client.send(req);
+    final resp = await _client.send(req);
     _throwOnErrorHTTPCode(resp.statusCode);
     if (range != null && resp.statusCode != rangeStatus) {
       throw Exception(
@@ -33,7 +33,7 @@ class HTTPClientWrapper {
 
   /// Sends a HEAD request with a RANGE header.
   Future<bool> canResume(Uri url) async {
-    var resp = await head(url, headers: {'Range': 'bytes=0-'});
+    final resp = await head(url, headers: {'Range': 'bytes=0-'});
     return resp.statusCode == rangeStatus;
   }
 

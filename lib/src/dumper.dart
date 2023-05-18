@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:buxing/buxing.dart';
+import '../buxing.dart';
 
 /// File extension of a partially downloaded file.
 const dataExt = '.bxdown';
@@ -46,7 +46,7 @@ class Dumper {
 
   static Future<Dumper> _newDumper(String path, State initialState,
       File dataFile, File stateFile, Logger? logger) async {
-    var d = Dumper._(path, initialState, dataFile, stateFile, logger);
+    final d = Dumper._(path, initialState, dataFile, stateFile, logger);
     await d._prepare();
     return d;
   }
@@ -103,7 +103,7 @@ class Dumper {
   }
 
   Future<void> _prepare() async {
-    var raf = await dataFile.open(mode: FileMode.append);
+    final raf = await dataFile.open(mode: FileMode.append);
     _poz = await raf.length();
     _dataRAF = raf;
   }
@@ -111,9 +111,9 @@ class Dumper {
   /// Creates a dumper and overwrites the existing one.
   static Future<Dumper> create(String dest, StateHead head,
       [Logger? logger]) async {
-    var state = State(head);
-    var stateFile = getStateFile(dest);
-    var dataFile = getDataFile(dest);
+    final state = State(head);
+    final stateFile = getStateFile(dest);
+    final dataFile = getDataFile(dest);
 
     await dataFile.create(recursive: true);
     if (head.size >= 0) {
@@ -122,7 +122,7 @@ class Dumper {
 
     await stateFile.create(recursive: true);
 
-    var d = await Dumper._newDumper(dest, state, dataFile, stateFile, logger);
+    final d = await Dumper._newDumper(dest, state, dataFile, stateFile, logger);
     await d.writeState(state);
     return d;
   }
@@ -131,17 +131,17 @@ class Dumper {
   static Future<Dumper?> load(String dest, StateHead head,
       [Logger? logger]) async {
     try {
-      var stateFile = getStateFile(dest);
-      var dataFile = getDataFile(dest);
+      final stateFile = getStateFile(dest);
+      final dataFile = getDataFile(dest);
       if (await stateFile.exists() && await dataFile.exists()) {
-        var localState = State.fromJSON(await stateFile.readAsString());
+        final localState = State.fromJSON(await stateFile.readAsString());
         // Check if two states have the same head.
         if (identical(localState.head, head)) {
           throw Exception('Online state has changed');
         }
 
         // Make sure data file size is less than state file size.
-        var fileSize = await dataFile.length();
+        final fileSize = await dataFile.length();
         if (head.size >= 0 && fileSize > head.size) {
           throw Exception(
               'Local data size is greater than remote file size, $fileSize != ${head.size}');
@@ -161,7 +161,7 @@ class Dumper {
   /// Loads a dumper at the given path or creates one if it doesn't exist.
   static Future<Dumper> loadOrCreate(String dest, StateHead head,
       [Logger? logger]) async {
-    var state = await load(dest, head, logger);
+    final state = await load(dest, head, logger);
     if (state != null) {
       logger?.info('dumper: State loaded');
       return state;

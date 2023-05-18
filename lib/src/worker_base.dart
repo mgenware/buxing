@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:buxing/buxing.dart';
+import '../buxing.dart';
 
 /// Base class for all workers.
 abstract class WorkerBase {

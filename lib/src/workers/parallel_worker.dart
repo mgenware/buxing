@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'dart:io';
 
-import 'package:buxing/buxing.dart';
+import '../../buxing.dart';
 import 'package:meta/meta.dart';
 import 'package:async/async.dart';
 
@@ -26,7 +26,7 @@ class ParallelWorker extends Worker {
   Future<State> prepare(State state) async {
     logger?.info('p_worker: Sending head request...');
     if (state.conns.isEmpty) {
-      var connStates = _createConnStates(state);
+      final connStates = _createConnStates(state);
       logger?.info('p_worker: Created ${connStates.length} state conns...');
       state.conns = connStates;
     }
@@ -39,9 +39,9 @@ class ParallelWorker extends Worker {
     logger?.info('p_worker: Got ${state.conns.length} state conns...');
 
     for (var connState in state.conns.values) {
-      var conn = spawnConn(state.head, connState);
+      final conn = spawnConn(state.head, connState);
       conn.onStateChange = (s) async {
-        var id = conn.id;
+        final id = conn.id;
         if (s == null) {
           await conn.close();
           state.conns.remove(id);
@@ -52,15 +52,15 @@ class ParallelWorker extends Worker {
       };
       _conns[conn.id] = conn;
     }
-    var streams = await Future.wait(_conns.values.map((e) => e.start()));
+    final streams = await Future.wait(_conns.values.map((e) => e.start()));
     return StreamGroup.merge(streams);
   }
 
   Map<String, ConnState> _createConnStates(State state) {
-    var avgSize = (state.head.size / concurrency).round();
+    final avgSize = (state.head.size / concurrency).round();
     ConnState? prevState;
     ConnState? curState;
-    Map<String, ConnState> conns = {};
+    final Map<String, ConnState> conns = {};
     for (var i = 0; i < concurrency; i++) {
       curState = ConnState(
           nextConnID(),

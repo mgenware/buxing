@@ -1,5 +1,5 @@
-import 'package:buxing/buxing.dart';
-import 'package:buxing/src/workers/http_client_wrapper.dart';
+import '../../buxing.dart';
+import 'http_client_wrapper.dart';
 
 /// The default [ConnBase] implementation.
 class Conn extends ConnBase {
@@ -15,7 +15,7 @@ class Conn extends ConnBase {
 
   @override
   Future<Stream<List<int>>> startCore() async {
-    var resp = await _conn.get(head.url, range: initialState.range);
+    final resp = await _conn.get(head.url, range: initialState.range);
     return resp.stream;
   }
 }

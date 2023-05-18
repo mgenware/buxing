@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:buxing/src/data.dart';
+import 'data.dart';
 
 // Constants used in JSON serialization / deserialization.
 const urlKey = 'url';
@@ -80,7 +80,7 @@ class State {
   /// Serializes a state to a JSON string.
   String toJSON() {
     // ignore: implicit_dynamic_map_literal
-    Map<String, dynamic> dict = {
+    final Map<String, dynamic> dict = {
       urlKey: head.url.toString(),
       originalURLKey: head.originalURL.toString(),
       sizeKey: head.size,
@@ -99,16 +99,16 @@ class State {
   static State fromJSON(String json) {
     // Any errors thrown here are expected and should be handled
     // as data corruption.
-    var map = jsonDecode(json) as Map<String, dynamic>;
-    var state = State(StateHead(Uri.parse(map[originalURLKey] as String),
+    final map = jsonDecode(json) as Map<String, dynamic>;
+    final state = State(StateHead(Uri.parse(map[originalURLKey] as String),
         Uri.parse(map[urlKey] as String), map[sizeKey] as int));
     state.transferred = map[transferredKey] as int;
     state.parallel = (map[parallelKey] ?? false) as bool;
     // ignore: implicit_dynamic_map_literal
-    var connsMap = map[connKey] as Map<String, dynamic>?;
+    final connsMap = map[connKey] as Map<String, dynamic>?;
     if (connsMap != null) {
       for (var connDict in connsMap.values) {
-        var connState = ConnState.fromJson(connDict as Map<String, dynamic>);
+        final connState = ConnState.fromJson(connDict as Map<String, dynamic>);
         state.conns[connState.id] = connState;
       }
     }

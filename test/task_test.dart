@@ -6,7 +6,7 @@ import 'helper/t_worker.dart';
 
 void main() {
   test('Completed', () async {
-    var t = TaskWrapper();
+    final t = TaskWrapper();
     await t.start();
     expect(t.initialState,
         '{"url":"_url_","original_url":"_url_","size":10,"transferred":0}');
@@ -18,7 +18,7 @@ void main() {
   });
 
   test('Completed (unknown size)', () async {
-    var t = TaskWrapper(worker: TWorker()..size = -1);
+    final t = TaskWrapper(worker: TWorker()..size = -1);
     await t.start();
     expect(t.initialState,
         '{"url":"_url_","original_url":"_url_","size":-1,"transferred":0}');
@@ -30,7 +30,7 @@ void main() {
   });
 
   test('Completed (empty size)', () async {
-    var t = TaskWrapper(worker: TWorker()..size = 0);
+    final t = TaskWrapper(worker: TWorker()..size = 0);
     await t.start();
     expect(t.initialState, '');
     expect(t.initialPoz, -1);
@@ -41,7 +41,7 @@ void main() {
   });
 
   test('Completed (no range support)', () async {
-    var t = TaskWrapper(
+    final t = TaskWrapper(
         worker: TWorker()
           ..size = defSize
           ..canResumeValue = false);
@@ -56,7 +56,7 @@ void main() {
   });
 
   test('Completed (no range support + unknown size)', () async {
-    var t = TaskWrapper(
+    final t = TaskWrapper(
         worker: TWorker()
           ..size = -1
           ..canResumeValue = false);
@@ -71,7 +71,7 @@ void main() {
   });
 
   test('Head error', () async {
-    var t = TaskWrapper(worker: TWorker()..headError = true);
+    final t = TaskWrapper(worker: TWorker()..headError = true);
     try {
       await t.start();
       throw Exception();

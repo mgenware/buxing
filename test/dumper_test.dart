@@ -11,9 +11,9 @@ const dataExt = '.bxdown';
 const stateExt = '.bxdownstate';
 
 Future<Dumper> newDumper({int size = defSize}) async {
-  var file = newFile();
-  var head = StateHead(defURL, defURL, size);
-  var d = await Dumper.create(file, head);
+  final file = newFile();
+  final head = StateHead(defURL, defURL, size);
+  final d = await Dumper.create(file, head);
   if (size > 0) {
     // Set position to start of the file.
     await d.seek(0);
@@ -27,7 +27,7 @@ extension Test on Dumper {
   }
 
   Future<String> readDataString() async {
-    var bytes = await dataFile.readAsBytes();
+    final bytes = await dataFile.readAsBytes();
     return hex.encode(bytes);
   }
 
@@ -46,7 +46,7 @@ extension Test on Dumper {
 
 void main() {
   test('Create', () async {
-    var d = await newDumper();
+    final d = await newDumper();
     expect(d.dataFile.path, d.path + dataExt);
     expect(await d.readDataString(), '00000000000000000000');
     expect(d.stateFile.path, d.path + stateExt);
@@ -55,7 +55,7 @@ void main() {
   });
 
   test('Create (size 0)', () async {
-    var d = await newDumper(size: 0);
+    final d = await newDumper(size: 0);
     expect(d.dataFile.path, d.path + dataExt);
     expect(await d.readDataString(), '');
     expect(d.stateFile.path, d.path + stateExt);
@@ -64,7 +64,7 @@ void main() {
   });
 
   test('Create and write (size -1)', () async {
-    var d = await newDumper(size: -1);
+    final d = await newDumper(size: -1);
     expect(d.dataFile.path, d.path + dataExt);
     expect(await d.readDataString(), '');
     expect(d.stateFile.path, d.path + stateExt);
@@ -78,7 +78,7 @@ void main() {
   });
 
   test('Write and seek', () async {
-    var d = await newDumper();
+    final d = await newDumper();
     await d.writeString('a');
     expect(await d.readDataString(), '61000000000000000000');
 
@@ -100,8 +100,8 @@ void main() {
 
     // Create a new dumper with the same name.
     const newSize = 7;
-    var newURL = Uri.parse('https://__new_url__');
-    var head = StateHead(newURL, newURL, newSize);
+    final newURL = Uri.parse('https://__new_url__');
+    final head = StateHead(newURL, newURL, newSize);
     d = await Dumper.create(d.path, head);
     expect(await d.readDataString(), '00000000000000');
     expect(await d.readStateString(),
@@ -110,7 +110,7 @@ void main() {
 
   test('Load', () async {
     // Create a dumper and set contents.
-    var d = await newDumper();
+    final d = await newDumper();
     await d.writeData([1, 2, 3, 4]);
     await d.close();
 
@@ -121,14 +121,14 @@ void main() {
         '{"url":"_url_","original_url":"_url_","size":10,"transferred":0}');
 
     // Load dumper with a different state.
-    var head = StateHead(defURL, defURL, 7);
+    final head = StateHead(defURL, defURL, 7);
     nd = await Dumper.load(d.path, head);
     expect(nd, null);
   });
 
   test('Load or create', () async {
     // Create a dumper and set contents.
-    var d = await newDumper();
+    final d = await newDumper();
     await d.writeData([1, 2, 3, 4]);
     await d.close();
 
@@ -139,7 +139,7 @@ void main() {
         '{"url":"_url_","original_url":"_url_","size":10,"transferred":0}');
 
     // Load dumper with a different state.
-    var head = StateHead(defURL, defURL, 7);
+    final head = StateHead(defURL, defURL, 7);
     nd = await Dumper.loadOrCreate(d.path, head);
     expect(await nd.readDataString(), '00000000000000');
     expect(await nd.readStateString(),
@@ -147,7 +147,7 @@ void main() {
   });
 
   test('Truncate', () async {
-    var d = await newDumper();
+    final d = await newDumper();
     await d.truncate(1);
     expect(d.dataFile.path, d.path + dataExt);
     expect(await d.readDataString(), '00');

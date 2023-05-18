@@ -1,4 +1,4 @@
-import 'package:buxing/buxing.dart';
+import '../../buxing.dart';
 import 'package:meta/meta.dart';
 import 'package:buffered_list_stream/buffered_list_stream.dart';
 
@@ -14,7 +14,7 @@ abstract class ConnBase {
   final int bufferSize;
 
   /// Fires when connection state updates.
-  Function(ConnState?)? onStateChange;
+  void Function(ConnState?)? onStateChange;
 
   int _transferred = 0;
 
@@ -28,10 +28,10 @@ abstract class ConnBase {
 
   /// Starts transmission from server.
   Future<Stream<DataBody>> start() async {
-    var bufferedStream = bufferedListStream(await startCore(), bufferSize);
+    final bufferedStream = bufferedListStream(await startCore(), bufferSize);
     return bufferedStream.map((bytes) {
-      var body = _createDataBody(bytes);
-      var newState = initialState.start + _transferred > initialState.end
+      final body = _createDataBody(bytes);
+      final newState = initialState.start + _transferred > initialState.end
           ? null
           : ConnState(initialState.id, initialState.start + _transferred,
               initialState.end);
@@ -41,7 +41,7 @@ abstract class ConnBase {
   }
 
   DataBody _createDataBody(List<int> bytes) {
-    var body = DataBody(bytes, position: initialState.start + _transferred);
+    final body = DataBody(bytes, position: initialState.start + _transferred);
     _transferred += bytes.length;
     return body;
   }

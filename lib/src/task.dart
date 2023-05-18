@@ -1,4 +1,4 @@
-import 'package:buxing/buxing.dart';
+import '../buxing.dart';
 
 /// Represents a progress update of a task.
 class TaskProgress {
@@ -22,10 +22,10 @@ class Task {
   late final Logger? logger;
 
   /// Called when a progress update is available.
-  Function(TaskProgress)? onProgress;
+  void Function(TaskProgress)? onProgress;
 
   /// Called when the download is about to start.
-  Function(State, int)? onBeforeDownload;
+  void Function(State, int)? onBeforeDownload;
 
   /// Gets the status of this task.
   TaskStatus get status => _status;
@@ -54,11 +54,11 @@ class Task {
     try {
       _setStatus(TaskStatus.working);
       logger?.info('task: Starting connection...');
-      var head = await _worker.connect(originalURL);
+      final head = await _worker.connect(originalURL);
       logger?.info('task: Remote head: ${head.url}:${head.size}');
 
       // Setup dumper.
-      var dumper = await Dumper.loadOrCreate(destFile, head, logger);
+      final dumper = await Dumper.loadOrCreate(destFile, head, logger);
       _dumper = dumper;
       logger?.info(
           'task: Dumper created with state:\n${dumper.currentState.toJSON()}\n');
@@ -74,7 +74,7 @@ class Task {
         await _resetData(state, dumper);
       }
 
-      var canResume = await _worker.canResume(head);
+      final canResume = await _worker.canResume(head);
       logger?.info('task: Can resume? $canResume');
       if (canResume) {
         // Set dumper position to last downloaded position.
@@ -89,7 +89,7 @@ class Task {
       }
 
       logger?.info('task: Preparing...');
-      var stateToBeUpdated = await _worker.prepare(state);
+      final stateToBeUpdated = await _worker.prepare(state);
       if (stateToBeUpdated != null) {
         logger?.info(
             'task: [prepare] returned state ${stateToBeUpdated.toJSON()}');
@@ -99,12 +99,12 @@ class Task {
 
       onBeforeDownload?.call(dumper.currentState, dumper.position);
       logger?.info('task: Downloading...');
-      var dataStream = await _worker.start(state);
+      final dataStream = await _worker.start(state);
 
       await for (var body in dataStream) {
         logger?.verbose(
             'task: Body received: ${body.data.length}, poz: ${body.position}');
-        var poz = body.position;
+        final poz = body.position;
         if (poz != null) {
           logger?.verbose('task: Seek: $poz');
           await dumper.seek(poz);

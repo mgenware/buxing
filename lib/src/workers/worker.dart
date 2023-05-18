@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:http/http.dart' as http;
 
-import 'package:buxing/buxing.dart';
+import '../../buxing.dart';
 import 'package:buffered_list_stream/buffered_list_stream.dart';
 import 'http_client_wrapper.dart';
 
@@ -17,23 +17,23 @@ class Worker extends WorkerBase {
   @override
   Future<StateHead> connect(Uri url) async {
     logger?.info('worker: Sending head request...');
-    var headResp = await _conn.head(url);
+    final headResp = await _conn.head(url);
     _logResponse(headResp);
 
     // Fetch content size.
-    var contentLength = headResp.headers['content-length'];
-    var size = int.tryParse(contentLength ?? '') ?? -1;
+    final contentLength = headResp.headers['content-length'];
+    final size = int.tryParse(contentLength ?? '') ?? -1;
     return StateHead(url, url, size);
   }
 
   @override
   Future<Stream<DataBody>> start(State state) async {
     logger?.info('worker: Sending data request...');
-    DataRange? range = state.transferred > 0
+    final DataRange? range = state.transferred > 0
         ? DataRange(state.transferred, state.head.size - 1)
         : null;
-    var resp = await _conn.get(state.head.url, range: range);
-    var bufferedStream = bufferedListStream(resp.stream, bufferSize);
+    final resp = await _conn.get(state.head.url, range: range);
+    final bufferedStream = bufferedListStream(resp.stream, bufferSize);
     return bufferedStream.map((s) => DataBody(s));
   }
 

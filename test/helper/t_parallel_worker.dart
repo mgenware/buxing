@@ -21,7 +21,7 @@ class TConn extends ConnBase {
   }
 
   Stream<List<int>> _getStream() async* {
-    var start = initialState.start;
+    final start = initialState.start;
     var end =
         (fullPause || partialPause) ? initialState.start + 3 : initialState.end;
     if (partialPause && (id == '1' || id == '3')) {

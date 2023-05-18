@@ -6,7 +6,7 @@ import 'helper/t_parallel_worker.dart';
 
 void main() {
   test('Completed successfully with progress', () async {
-    var t = TaskWrapper(worker: TParallelWorker());
+    final t = TaskWrapper(worker: TParallelWorker());
     await t.start();
     expect(t.initialState,
         '{"url":"_url_","original_url":"_url_","size":43,"transferred":0,"conn":{"1":{"start":0,"end":10,"id":"1"},"2":{"start":11,"end":21,"id":"2"},"3":{"start":22,"end":32,"id":"3"},"4":{"start":33,"end":42,"id":"4"}}}');
