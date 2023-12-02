@@ -1,6 +1,8 @@
 [![pub package](https://img.shields.io/pub/v/buxing.svg)](https://pub.dev/packages/buxing)
 [![Build Status](https://github.com/mgenware/buxing/workflows/Build/badge.svg)](https://github.com/mgenware/buxing/actions)
 
+# buxing
+
 An HTTP file downloader packed with many features -> resumable downloads, multiple connections, buffering, auto-retry, etc.
 
 ## Features
